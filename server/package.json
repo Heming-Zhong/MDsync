@@ -1,0 +1,27 @@
+{
+  "name": "mdsyncd",
+  "version": "0.0.1",
+  "description": "MDSync's node.js server",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Heming-Zhong/MDsync.git"
+  },
+  "author": "zetako",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Heming-Zhong/MDsync/issues"
+  },
+  "homepage": "https://github.com/Heming-Zhong/MDsync#readme",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.2.1",
+    "@grpc/proto-loader": "^0.5.5",
+    "chalk": "^4.1.0",
+    "path": "^0.12.7",
+    "uuid": "^8.3.1"
+  }
+}
