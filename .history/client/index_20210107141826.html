@@ -42,7 +42,6 @@
                 user = en.encry(username, "public.pem");
                 password = en.encry(password, "public.pem");
                 let stub = teststub();
-                ipc.send("stub", stub);
 
                 function logincallback(error, response) {
                     if (error) {
@@ -56,12 +55,12 @@
                         rpc.status = response.status
                         if (rpc.status) {
                             alert("登陆成功")
-                            ipc.send("loginsuccess", response.unique_id)
+                            ipc.send("loginsuccess")
                         } else {
                             alert("登陆失败")
                         }
                     }
-                    ipc.send("loginsuccess", 0)
+                    ipc.send("loginsuccess", response.unique_id)
                     console.log(response)
                 }
 

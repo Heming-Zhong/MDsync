@@ -1,0 +1,55 @@
+<OCTYPE html>
+    <html>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>主页</title>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    </head>
+
+    <body>
+        <script>
+            // const en = require('./client-encrypt')
+            const rpc = require('./rpc')
+        </script>
+        <script>
+            if (typeof module === 'object') {
+                window.module = module;
+                module = undefined;
+            }
+        </script>
+        <!-- <script src="no           /jquery/3.1.1/jquery.min.js"></script> -->
+        <script src="node_modules/jquery/dist/jquery.min.js"></script>
+        <link rel="stylesheet" href="jstree/dist/themes/default/style.min.css" />
+        <script src="jstree/dist/jstree.min.js"></script>
+        <script>
+            if (window.module) module = window.module;
+        </script>
+        <h1>主页</h1>
+
+        <button onclick="test()">测试</button>
+        <script>
+            function test() {
+                node = Document.getElementById("container")
+                console.log(node)
+            }
+        </script>
+        <div id="container">
+            <ul>
+                <li>Root node
+                    <ul>
+                        <li>Child node 1</li>
+                        <li>Child node 2</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <script>
+            $(function() {
+                $('#container').jstree();
+            });
+        </script>
+
+    </body>
+
+    </html>

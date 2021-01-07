@@ -6,7 +6,6 @@ mainWindowID = 0
 userid = 0
 var server_stub
 var userfiletree
-var curwin
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -57,13 +56,8 @@ function getfiletree() {
         unique_id: userid,
         op: "getTree",
         address: "/"
-    }, function(error, info) {
-        if (error) {
-            console.log("get file info error")
-        } else {
-            userfiletree = JSON.parse(info)
-            curwin.webContents.send("filetree", userfiletree)
-        }
+    }, function(info) {
+        userfiletree = JSON.parse(info)
     })
 
 }
@@ -71,9 +65,9 @@ function getfiletree() {
 ipcmain.on('loginsuccess', (event, id) => {
     curwin = BrowserWindow.fromId(mainWindowID)
     userid = id
+
     curwin.loadFile('main.html')
     curwin.setSize(1080, 900)
-    getfiletree()
         // curwin.webContents.openDevTools()
 })
 

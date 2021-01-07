@@ -71,9 +71,9 @@ function getfiletree() {
 ipcmain.on('loginsuccess', (event, id) => {
     curwin = BrowserWindow.fromId(mainWindowID)
     userid = id
+    getfiletree()
     curwin.loadFile('main.html')
     curwin.setSize(1080, 900)
-    getfiletree()
         // curwin.webContents.openDevTools()
 })
 

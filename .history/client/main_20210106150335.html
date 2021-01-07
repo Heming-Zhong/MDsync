@@ -1,0 +1,39 @@
+<OCTYPE html>
+    <html>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>主页</title>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    </head>
+
+    <body>
+        <script>
+            // const en = require('./client-encrypt')
+            const rpc = require('./rpc')
+        </script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/themes/default/style.min.css" />
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/jstree.min.js"></script>
+        <h1>主页</h1>
+
+        <div id="container">
+            <ul>
+                <li>Root node
+                    <ul>
+                        <li>Child node 1</li>
+                        <li>Child node 2</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <script>
+            $(function() {
+                $('#container').jstree();
+            });
+        </script>
+
+    </body>
+
+    </html>

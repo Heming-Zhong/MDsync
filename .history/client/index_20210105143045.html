@@ -11,7 +11,6 @@
         <script>
             const en = require('./client-encrypt')
             const rpc = require('./rpc')
-            const ipc = require('electron').ipcRenderer
         </script>
         <h1>Hello World！</h1>
         服务端IP:
@@ -19,21 +18,28 @@
             <input type="text" id="ip" pattern="(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$" />
             <br>
             <input type="text" id="port" pattern="^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$" /><br>
-            <!-- <input type="submit" id="submitip" onclick="teststub()" /> -->
+            <input type="submit" id="submitip" onclick="stub()" />
         </form>
         <script>
-            function teststub() {
+            ipc = require('electron').ipcrenderer;
+
+            function stub() {
                 ip = document.getElementById("ip").value;
                 port = document.getElementById("port").value;
                 console.log("send success")
                 stub = rpc.getstub(ip, port);
                 return stub
+                    /*
+                    stub = ipc.sendSync("sendaddr-req", {
+                        ip: ip,
+                        port: port
+                    })*/
             }
         </script>
         请登录:
         <br>
         <input type="text" id="user" /><br>
-        <input type="password" id="passwd" /> <br>
+        <input type="password" id="passwd" /> <br>我们正在使用node
         <input type="submit" id="submitacount" onclick="handle()" />
         <script>
             function handle() {
@@ -41,28 +47,15 @@
                 let password = document.getElementById("passwd").value;
                 user = en.encry(username, "public.pem");
                 password = en.encry(password, "public.pem");
-                let stub = teststub();
-                ipc.send("stub", stub);
+                let stub = stub();
 
                 function logincallback(error, response) {
-                    if (error) {
-                        alert("登录错误:找不到服务器")
+                    if (response.status) {
+                        rpc.uid = response.unique_id
                     } else {
-                        if (response.status) {
-                            rpc.uid = response.unique_id
-                        } else {
-                            console.log("#debug login error")
-                        }
-                        rpc.status = response.status
-                        if (rpc.status) {
-                            alert("登陆成功")
-                            ipc.send("loginsuccess", response.unique_id)
-                        } else {
-                            alert("登陆失败")
-                        }
+                        console.log("#debug login error")
                     }
-                    ipc.send("loginsuccess", 0)
-                    console.log(response)
+                    rpc.status = response.status
                 }
 
                 stub.login({
@@ -70,10 +63,23 @@
                     passwd: password
                 }, logincallback)
 
-
+                if (rpc.uid != "") {
+                    alert("登陆成功")
+                } else {
+                    alert("登陆失败")
+                }
                 //
             }
         </script>
+        <script>
+            document.write(process.versions.node)
+        </script>, Chrome
+        <script>
+            document.write(process.versions.chrome)
+        </script>, and Electron
+        <script>
+            document.write(process.versions.electron)
+        </script>.
     </body>
 
     </html>
