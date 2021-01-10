@@ -4,9 +4,6 @@ const rpc = require('./rpc')
 
 mainWindowID = 0
 userid = 0
-var server_stub
-var userfiletree
-var curwin
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -37,43 +34,11 @@ app.on('activate', () => {
     }
 })
 
-ipcmain.on('stub', (event, stub) => {
-    server_stub = stub
-    console.log("#debug server stub loaded")
-})
-
-// function getfiletree(cur_path) {
-//     dircall = server_stub.getDirInfo({
-//         unique_id: userid,
-//         op: "getDirInfo",
-//         address: cur_path
-//     })
-//     dircall.on("data", function(info) {
-
-//     })
-// }
-function getfiletree() {
-    server_stub.getFileTree({
-        unique_id: userid,
-        op: "getTree",
-        address: "/"
-    }, function(error, info) {
-        if (error) {
-            console.log("get file info error")
-        } else {
-            userfiletree = JSON.parse(info)
-            curwin.webContents.send("filetree", userfiletree)
-        }
-    })
-
-}
-
 ipcmain.on('loginsuccess', (event, id) => {
     curwin = BrowserWindow.fromId(mainWindowID)
     userid = id
     curwin.loadFile('main.html')
     curwin.setSize(1080, 900)
-    getfiletree()
         // curwin.webContents.openDevTools()
 })
 

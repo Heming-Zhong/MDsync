@@ -52,7 +52,7 @@ ipcmain.on('stub', (event, stub) => {
 
 //     })
 // }
-function getfiletree() {
+function getfiletree(event) {
     server_stub.getFileTree({
         unique_id: userid,
         op: "getTree",
@@ -71,9 +71,9 @@ function getfiletree() {
 ipcmain.on('loginsuccess', (event, id) => {
     curwin = BrowserWindow.fromId(mainWindowID)
     userid = id
+
     curwin.loadFile('main.html')
     curwin.setSize(1080, 900)
-    getfiletree()
         // curwin.webContents.openDevTools()
 })
 

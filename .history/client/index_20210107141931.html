@@ -56,12 +56,12 @@
                         rpc.status = response.status
                         if (rpc.status) {
                             alert("登陆成功")
-                            ipc.send("loginsuccess", response.unique_id)
+                            ipc.send("loginsuccess")
                         } else {
                             alert("登陆失败")
                         }
                     }
-                    ipc.send("loginsuccess", 0)
+                    ipc.send("loginsuccess", response.unique_id)
                     console.log(response)
                 }
 
