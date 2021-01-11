@@ -55,9 +55,11 @@
                             console.log("#debug login error")
                             alert("登陆失败")
                         }
+                        rpc.status = response.status
+                        if (rpc.status) {} else {}
                     }
                     ipc.send("loginsuccess", 0)
-                        // console.log(response)
+                    console.log(response)
                 }
 
                 stub.login({

@@ -35,15 +35,15 @@ message loginInfo
 
 message request
 {
-    string uuid=1;
+    string unique_id=1;
     operation op=2;
-    string address=3;   //should be absolute (start with /)
+    string address=3;
 };
 
 message response
 {
     int32 status=1;
-    string uuid=2;
+    string unique_id=2;
 };
 
 message fileInfo

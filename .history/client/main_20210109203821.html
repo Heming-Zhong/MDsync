@@ -11,9 +11,6 @@
         <script>
             // const en = require('./client-encrypt')
             const rpc = require('./rpc')
-            const {
-                dialog
-            } = require('electron').remote
         </script>
         <script>
             if (typeof module === 'object') {
@@ -58,11 +55,7 @@
                                 "opened": true,
                                 "selected": false
                             },
-                            "text": "夏宇信息",
-                            "timestamp": 0,
-                            // "info": "test",
-                            // "timestamp": "0",
-                            "type": "dir"
+                            "text": "夏宇信息"
                         }, {
                             "id": "69",
                             "parent": "0",
@@ -87,19 +80,7 @@
                         "check_callback": true
                     }
                 }).on('select_node.jstree', function(event, data) {
-                    // console.log(data.node);
-                    var ref = $('#jstree1').jstree(true);
-                    var _l = data.node.li_attr;
-                    console.log(_l);
-                    // 叶节点，说明是文件
-                    if (ref.is_leaf(data.node)) {
-                        // TO-DO：获取文件内容
-                        path = ref.get_path(data.node, '/')
-                        console.log(path)
-                        _download(data.node, path)
-                    } else {
-                        // 说明是目录，什么也不做
-                    }
+                    console.log(data.node);
                 }).on('changed.jstree', function(event, data) {
                     console.log("-----------changed.jstree");
                     console.log("action:" + data.action);
@@ -160,50 +141,12 @@
                 sel = sel[0];
                 return sel;
             }
-
-
-            function upload() {
-                ref = $('#jstree1').jstree(true)
-                node = _getCurrNode()
-                if (ref.is_leaf(node)) {
-                    alert("请选中一个目录！")
-                } else {
-                    dialog.showOpenDialog({
-                        title: "请选择要上传的文件",
-                    }).then(result => {
-                        ref = $('#jstree1').jstree(true)
-                        node = _getCurrNode()
-                        console.log(result)
-                        if (!result.canceled) {
-                            filepaths = result.filePaths
-                            cloudpath = ref.get_path(node, '/')
-                            ipc.send("upload", {
-                                localpath: filePaths,
-                                cloudpath: cloudpath
-                            })
-                        } else {
-                            console.log("upload canceled")
-                        }
-                    }).catch(err => {
-                        console.log(err)
-                    })
-
-                }
-            }
-
-            function _download(node, path) {
-                ipc.send("download", {
-                    node: node,
-                    path: path
-                })
-            }
         </script>
 
         <body>
             <input type="button" value="create node" onclick="create();">
             <input type="button" value="rename node" onclick="rename();">
             <input type="button" value="del node" onclick="del();">
-            <input type="button" value="上传" onclick="upload()">
             <input type="button" value="上移" onclick="moveup();">
             <input type="button" value="下移" onclick="movedown();">
             <div id="jstree1" style="width:200px;background:#fff322"></div>

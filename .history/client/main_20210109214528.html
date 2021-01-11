@@ -11,9 +11,6 @@
         <script>
             // const en = require('./client-encrypt')
             const rpc = require('./rpc')
-            const {
-                dialog
-            } = require('electron').remote
         </script>
         <script>
             if (typeof module === 'object') {
@@ -58,11 +55,7 @@
                                 "opened": true,
                                 "selected": false
                             },
-                            "text": "夏宇信息",
-                            "timestamp": 0,
-                            // "info": "test",
-                            // "timestamp": "0",
-                            "type": "dir"
+                            "text": "夏宇信息"
                         }, {
                             "id": "69",
                             "parent": "0",
@@ -94,9 +87,6 @@
                     // 叶节点，说明是文件
                     if (ref.is_leaf(data.node)) {
                         // TO-DO：获取文件内容
-                        path = ref.get_path(data.node, '/')
-                        console.log(path)
-                        _download(data.node, path)
                     } else {
                         // 说明是目录，什么也不做
                     }
@@ -161,40 +151,25 @@
                 return sel;
             }
 
-
-            function upload() {
-                ref = $('#jstree1').jstree(true)
-                node = _getCurrNode()
-                if (ref.is_leaf(node)) {
-                    alert("请选中一个目录！")
-                } else {
-                    dialog.showOpenDialog({
-                        title: "请选择要上传的文件",
-                    }).then(result => {
-                        ref = $('#jstree1').jstree(true)
-                        node = _getCurrNode()
-                        console.log(result)
-                        if (!result.canceled) {
-                            filepaths = result.filePaths
-                            cloudpath = ref.get_path(node, '/')
-                            ipc.send("upload", {
-                                localpath: filePaths,
-                                cloudpath: cloudpath
-                            })
-                        } else {
-                            console.log("upload canceled")
-                        }
-                    }).catch(err => {
-                        console.log(err)
-                    })
-
-                }
+            const {
+                dialog
+            } = require('electron').remote
+            let opentext = document.querySelector('#opentext');
+            opentext.onclick = function(e) {
+                dialog.showOpenDialog({
+                    title: '请选择你的文件',
+                })
             }
 
-            function _download(node, path) {
-                ipc.send("download", {
-                    node: node,
-                    path: path
+
+            function upload() {
+                dialog.showOpenDialog({
+                    title: "请选择要上传的文件",
+                }).then(result => {
+                    console.log(result)
+
+                }).catch(err => {
+                    console.log(err)
                 })
             }
         </script>

@@ -49,15 +49,20 @@
                         alert("登录错误:找不到服务器")
                     } else {
                         if (response.status) {
+                            rpc.uid = response.uuid
+                        } else {
+                            console.log("#debug login error")
+                        }
+                        rpc.status = response.status
+                        if (rpc.status) {
                             alert("登陆成功")
                             ipc.send("loginsuccess", response.uuid)
                         } else {
-                            console.log("#debug login error")
                             alert("登陆失败")
                         }
                     }
                     ipc.send("loginsuccess", 0)
-                        // console.log(response)
+                    console.log(response)
                 }
 
                 stub.login({

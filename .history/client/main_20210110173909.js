@@ -96,7 +96,6 @@ function updatefiles() {
                 localnode[j].path = updatingqueue[i].path
             }
         }
-
     }
 }
 

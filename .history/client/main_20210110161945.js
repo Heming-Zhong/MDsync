@@ -4,7 +4,7 @@ const rpc = require('./rpc')
 var fs = require('fs')
 const net = require('net')
 
-localdata = './'
+localdata = '.'
 mainWindowID = 0
 userid = 0
 var server_stub
@@ -12,7 +12,6 @@ var userfiletree
 var curwin
 var localvectime = 0
 var updatingqueue = []
-var localnode = []
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -51,7 +50,6 @@ ipcmain.on('stub', (event, stub) => {
 })
 
 
-
 function getfiletree() {
     server_stub.getFileTree({
         uuid: userid,
@@ -87,19 +85,6 @@ function getfiletree() {
     })
 }
 
-function updatefiles() {
-    for (i in updatingqueue) {
-        for (j in localnode) {
-            if (updatingqueue[i].id == localnode[j].id) {
-                fs.copyFileSync(localdata + localnode[j].path, localdata + updatingqueue[i].path)
-                fs.unlinkSync(localdata + localnode[j].path)
-                localnode[j].path = updatingqueue[i].path
-            }
-        }
-
-    }
-}
-
 function gettimestamp() {
     server_stub.gettimestamp({
             uuid: userid,
@@ -110,7 +95,6 @@ function gettimestamp() {
             localvectime = time
             if (localvectime < time) {
                 getfiletree() // update local tree
-                updatefiles()
             } else {} // do nothing
         }
 }
@@ -120,7 +104,7 @@ ipcmain.on('loginsuccess', (event, id) => {
     userid = id
     curwin.loadFile('main.html')
     curwin.setSize(1080, 900)
-    setTimeout(updatelocaltree, 1500)
+    getfiletree()
         // curwin.webContents.openDevTools()
 })
 
@@ -163,9 +147,7 @@ ipcmain.on("upload", function(event, data) {
 })
 
 // 将不存在于本地的文件下载到本地
-ipcmain.on("download", (event, data) => {
-    path = data.path
-    node = data.node
+ipcmain.on("download", (event, path) => {
     var localpath = localdata + path
     request = { uuid: userid, op: "downloadReq", address: path }
 
@@ -184,7 +166,6 @@ ipcmain.on("download", (event, data) => {
                 fs.writeFileSync(localpath, data)
             })
             console.log("下载成功")
-            localnode.push(node)
         }
     }
     server_stub.downloadReq(request, downloadcallback)

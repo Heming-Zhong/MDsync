@@ -59,8 +59,6 @@
                                 "selected": false
                             },
                             "text": "夏宇信息",
-                            "timestamp": 0,
-                            // "info": "test",
                             // "timestamp": "0",
                             "type": "dir"
                         }, {
@@ -96,7 +94,7 @@
                         // TO-DO：获取文件内容
                         path = ref.get_path(data.node, '/')
                         console.log(path)
-                        _download(data.node, path)
+                        _download(path)
                     } else {
                         // 说明是目录，什么也不做
                     }
@@ -191,11 +189,8 @@
                 }
             }
 
-            function _download(node, path) {
-                ipc.send("download", {
-                    node: node,
-                    path: path
-                })
+            function _download(path) {
+                ipc.send("download", path)
             }
         </script>
 

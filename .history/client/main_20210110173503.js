@@ -91,12 +91,10 @@ function updatefiles() {
     for (i in updatingqueue) {
         for (j in localnode) {
             if (updatingqueue[i].id == localnode[j].id) {
-                fs.copyFileSync(localdata + localnode[j].path, localdata + updatingqueue[i].path)
-                fs.unlinkSync(localdata + localnode[j].path)
-                localnode[j].path = updatingqueue[i].path
+                fs.copyFile(localdata + updatingqueue[i].path, )
+                fs.unlink()
             }
         }
-
     }
 }
 

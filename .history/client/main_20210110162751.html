@@ -192,10 +192,7 @@
             }
 
             function _download(node, path) {
-                ipc.send("download", {
-                    node: node,
-                    path: path
-                })
+                ipc.send("download", path)
             }
         </script>
 
