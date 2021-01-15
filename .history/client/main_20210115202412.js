@@ -120,7 +120,7 @@ ipcmain.on("download", (event, data) => {
             client.setEncoding('utf8')
             client.on("data", function(data) {
                 console.log(data)
-                checkdir(localpath - filename)
+                checkdir(localpath)
                 fs.writeFileSync(localpath, data)
             })
             console.log("下载成功")
@@ -210,10 +210,12 @@ function updatelocaltree() {
 
 // 检查当前路径是否存在，如果不存在，那么就创建
 function checkdir(path) {
+    dirCache = {}
     const arr = path.split('/');
     let dir = arr[0];
     for (let i = 1; i < arr.length; i++) {
-        if (!fs.existsSync(dir)) {
+        if (!dirCache[dir] && !fs.existsSync(dir)) {
+            dirCache[dir] = true;
             fs.mkdirSync(dir);
         }
         dir = dir + '/' + arr[i];

@@ -132,14 +132,13 @@
                         node = _getCurrNode()
                         console.log(result)
                         if (!result.canceled) {
-                            filepath = result.filePaths[0]
-                            filename = filepath.substr(filepath.lastIndexOf('/') + 1)
-                            cloudpath = ref.get_path(node, '/')
+                            filepaths = result.filePaths
+                            filename = filepaths.substr(filepaths.lastIndexOf('/') + 1)
+                            cloudpath = ref.get_path(node, '/') + '/' + filename
                             console.log(cloudpath)
                             ipc.send("upload", {
                                 localpath: filepaths,
-                                cloudpath: cloudpath,
-                                filename: filename
+                                cloudpath: cloudpath
                             })
                         } else {
                             console.log("upload canceled")
@@ -153,8 +152,7 @@
             function _download(node, path) {
                 ipc.send("download", {
                     node: node,
-                    path: path,
-                    name: node.text
+                    path: path
                 })
             }
 

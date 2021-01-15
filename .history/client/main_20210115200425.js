@@ -67,15 +67,14 @@ ipcmain.on('loginsuccess', (event, id) => {
 ipcmain.on("upload", function(event, data) {
     var localpath = data.localpath
     var clouddic = data.cloudpath
-    var filename = data.filename
 
     // 暂时先不考虑相关资源文件的拷贝，只拷贝目标文件
     // for (var i = 0; i < localpaths.length; i++) {
     checkdir(localdata + clouddic)
-    fs.copyFileSync(localpath, localdata + clouddic + '/' + filename)
+    fs.copyFileSync(localpath, localdata + clouddic)
         // }
 
-    request = { uuid: userid, op: "uploadReq", address: clouddic + '/' + filename }
+    request = { uuid: userid, op: "uploadReq", address: clouddic }
 
     // 上传RPC回调
     function uploadcallback(error, socketinfo) {
@@ -104,8 +103,7 @@ ipcmain.on("upload", function(event, data) {
 ipcmain.on("download", (event, data) => {
     path = data.path
     node = data.node
-    filename = data.name
-    var localpath = localdata + path + '/' + filename
+    var localpath = localdata + path
     request = { uuid: userid, op: "downloadReq", address: path }
 
     function downloadcallback(error, socketinfo) {
@@ -120,7 +118,6 @@ ipcmain.on("download", (event, data) => {
             client.setEncoding('utf8')
             client.on("data", function(data) {
                 console.log(data)
-                checkdir(localpath - filename)
                 fs.writeFileSync(localpath, data)
             })
             console.log("下载成功")
@@ -164,12 +161,9 @@ function updatefiles() {
                 find_flag = true
                     // compare timestamp   
                 if (localnode[i].timestamp < userfiletree[j].timestamp) {
-                    checkdir(localdata + userfiletree[j].path)
-                    oldfilepath = localdata + localnode[i].path + '/' + localnode[i].text
-                    newfilepath = localdata + userfiletree[j].path + '/' + userfiletree[j].text
-                    fs.copyFileSync(oldfilepath, newfilepath)
+                    fs.copyFileSync(localdata + localnode[i].path, localdata + userfiletree[j].path)
 
-                    fs.unlinkSync(oldfilepath)
+                    fs.unlinkSync(localdata + localnode[i].path)
 
                     localnode[i] = userfiletree[j]
                 }
@@ -179,7 +173,7 @@ function updatefiles() {
         // not find in new file tree, indicating this local copy need to be delete
         if (find_flag == false) {
             localnode.splice(i, 1)
-            fs.unlinkSync(localdata + localnode[i].path + '/' + localnode[i].text)
+            fs.unlinkSync(localdata + localnode[i].path)
         }
     }
     console.log("local copies all updated")
@@ -210,13 +204,5 @@ function updatelocaltree() {
 
 // 检查当前路径是否存在，如果不存在，那么就创建
 function checkdir(path) {
-    const arr = path.split('/');
-    let dir = arr[0];
-    for (let i = 1; i < arr.length; i++) {
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
-        dir = dir + '/' + arr[i];
-    }
-    // fs.writeFileSync(filePath, '')
+
 }

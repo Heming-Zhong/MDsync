@@ -94,10 +94,10 @@
                     }
                 }).on('select_node.jstree', function(event, data) {
                     var ref = $('#jstree1').jstree(true);
-                    // var _l = data.node.li_attr;
-                    console.log(data.node.original.type);
-                    // 叶节点同时类型不是dir，说明是文件
-                    if (ref.is_leaf(data.node) && data.node.original.type != 'dir') {
+                    var _l = data.node.li_attr;
+                    console.log(_l);
+                    // 叶节点，说明是文件
+                    if (ref.is_leaf(data.node) && data.node.type != 'dir') {
                         // TO-DO：获取文件内容
                         path = ref.get_path(data.node, '/')
                         console.log(path)
@@ -117,11 +117,9 @@
 
             function upload() {
                 ref = $('#jstree1').jstree(true)
-                nodeid = _getCurrNode()
-                node = ref.get_node(nodeid)
-                    // console.log(node)
+                node = _getCurrNode()
                     // 只有选中非叶节点时才可以上传
-                if (ref.is_leaf(node) && node.original.type != 'dir') {
+                if (ref.is_leaf(node) && node.type != 'dir') {
                     alert("请选中一个目录！")
                 } else {
                     // 打开选择文件对话框
@@ -132,14 +130,11 @@
                         node = _getCurrNode()
                         console.log(result)
                         if (!result.canceled) {
-                            filepath = result.filePaths[0]
-                            filename = filepath.substr(filepath.lastIndexOf('/') + 1)
+                            filepaths = result.filePaths
                             cloudpath = ref.get_path(node, '/')
-                            console.log(cloudpath)
                             ipc.send("upload", {
-                                localpath: filepaths,
-                                cloudpath: cloudpath,
-                                filename: filename
+                                localpath: filePaths,
+                                cloudpath: cloudpath
                             })
                         } else {
                             console.log("upload canceled")
@@ -153,25 +148,19 @@
             function _download(node, path) {
                 ipc.send("download", {
                     node: node,
-                    path: path,
-                    name: node.text
+                    path: path
                 })
             }
 
             function createdir() {
                 var ref = $('#jstree1').jstree(true);
 
-                var currNodeid = _getCurrNode();
-                // not a directory
-                if (ref.is_leaf(currNodeid) && curnode.original.type != 'dir') {
-                    currNodeid = ref.get_parent(currNodeid)
-                } else {} // do nothing
-
-                // ref.edit(ref, curnode.val)
-
-                newNode = ref.create_node(currNodeid, {
-                    "type": "dir",
-                    "timestamp": 0,
+                var currNode = _getCurrNode();
+                if (ref.is_leaf(currNode)) {
+                    currNode = ref.get
+                }
+                currNode = ref.create_node(currNode, {
+                    "type": "file"
                 });
                 if (currNode) {
                     ref.edit(currNode);
@@ -221,7 +210,7 @@
         </script>
 
         <body>
-            <input type="button" value="创建目录" onclick="createdir();">
+            <input type="button" value="create node" onclick="create();">
             <input type="button" value="rename node" onclick="rename();">
             <input type="button" value="del node" onclick="del();">
             <input type="button" value="上传" onclick="upload()">

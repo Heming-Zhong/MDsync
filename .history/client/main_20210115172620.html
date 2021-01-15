@@ -130,16 +130,13 @@
                     }).then(result => {
                         ref = $('#jstree1').jstree(true)
                         node = _getCurrNode()
-                        console.log(result)
+                        console.log(result.filePaths)
                         if (!result.canceled) {
-                            filepath = result.filePaths[0]
-                            filename = filepath.substr(filepath.lastIndexOf('/') + 1)
+                            filepaths = result.filePaths
                             cloudpath = ref.get_path(node, '/')
-                            console.log(cloudpath)
                             ipc.send("upload", {
                                 localpath: filepaths,
-                                cloudpath: cloudpath,
-                                filename: filename
+                                cloudpath: cloudpath
                             })
                         } else {
                             console.log("upload canceled")
@@ -153,8 +150,7 @@
             function _download(node, path) {
                 ipc.send("download", {
                     node: node,
-                    path: path,
-                    name: node.text
+                    path: path
                 })
             }
 
@@ -162,16 +158,17 @@
                 var ref = $('#jstree1').jstree(true);
 
                 var currNodeid = _getCurrNode();
-                // not a directory
-                if (ref.is_leaf(currNodeid) && curnode.original.type != 'dir') {
+                var curnode = ref.get_node(currNodeid)
+                    // not a directory
+                if (ref.is_leaf(currNode) && curnode.original.type != 'dir') {
                     currNodeid = ref.get_parent(currNodeid)
+                    curnode = ref.get_node(currNodeid)
                 } else {} // do nothing
 
-                // ref.edit(ref, curnode.val)
+                ref.edit(ref, curnode.val)
 
-                newNode = ref.create_node(currNodeid, {
-                    "type": "dir",
-                    "timestamp": 0,
+                currNode = ref.create_node(currNode, {
+                    "type": "file"
                 });
                 if (currNode) {
                     ref.edit(currNode);

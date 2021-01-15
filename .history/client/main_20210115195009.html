@@ -130,16 +130,13 @@
                     }).then(result => {
                         ref = $('#jstree1').jstree(true)
                         node = _getCurrNode()
-                        console.log(result)
+                        console.log(result.filePaths)
                         if (!result.canceled) {
-                            filepath = result.filePaths[0]
-                            filename = filepath.substr(filepath.lastIndexOf('/') + 1)
+                            filepaths = result.filePaths
                             cloudpath = ref.get_path(node, '/')
-                            console.log(cloudpath)
                             ipc.send("upload", {
                                 localpath: filepaths,
-                                cloudpath: cloudpath,
-                                filename: filename
+                                cloudpath: cloudpath
                             })
                         } else {
                             console.log("upload canceled")
@@ -153,8 +150,7 @@
             function _download(node, path) {
                 ipc.send("download", {
                     node: node,
-                    path: path,
-                    name: node.text
+                    path: path
                 })
             }
 

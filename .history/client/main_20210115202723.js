@@ -120,7 +120,7 @@ ipcmain.on("download", (event, data) => {
             client.setEncoding('utf8')
             client.on("data", function(data) {
                 console.log(data)
-                checkdir(localpath - filename)
+                checkdir(localpath)
                 fs.writeFileSync(localpath, data)
             })
             console.log("下载成功")
