@@ -179,7 +179,7 @@
                 newNodeid = ref.create_node(currNodeid, {
                     "type": "dir",
                     "timestamp": 0,
-                    "path": curnode.original.path + curnode.text + '/'
+                    "path": curnode.original.path + curnode.original.text + '/'
                 });
 
                 function editcallback(node, state, canceled) {
@@ -208,30 +208,21 @@
                 var currNodeid = _getCurrNode();
                 var currNode = ref.get_node(currNodeid)
 
-                var oldname = currNode.text
-
                 function editcallback(node, state, canceled) {
                     if (!canceled) {
                         if (state) {
                             console.log(node)
-                            if (oldname != node.text) {
-                                ipc.send("rename", {
-                                    path: node.original.path + oldname,
-                                    name: node.text
-                                })
-                            }
-                            // newNode = ref.get_node(newNodeid)
+                                // newNode = ref.get_node(newNodeid)
+                            ipc.send("createdir", node.original.path)
                         } else {
                             console.log("edit state error")
                         }
                     } else {
                         console.log("edit cancelled")
-                            // ipc.send("rename", {
-                            //     path: node.original.path + oldname,
-                            //     name: node.text
-                            // })
+                        ipc.send("createdir", node)
                     }
                 }
+                // ref.rename_node(currNode, "rename node222");
                 ref.edit(currNodeid, currNode.text, editcallback)
             }
 
@@ -273,8 +264,8 @@
 
         <body>
             <input type="button" value="创建目录" onclick="createdir();">
-            <input type="button" value="重命名" onclick="rename();">
-            <input type="button" value="删除" onclick="del();">
+            <input type="button" value="rename node" onclick="rename();">
+            <input type="button" value="del node" onclick="del();">
             <input type="button" value="上传" onclick="upload()">
             <input type="button" value="上移" onclick="moveup();">
             <input type="button" value="下移" onclick="movedown();">

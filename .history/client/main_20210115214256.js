@@ -225,10 +225,11 @@ function updatefiles() {
                             client.setEncoding('utf8')
                             client.on("data", function(data) {
                                 console.log(data)
-                                    // checkdir(localpath - filename)
-                                fs.writeFileSync(newfilepath, data)
+                                checkdir(localpath - filename)
+                                fs.writeFileSync(localpath, data)
                             })
                             console.log("下载成功")
+                                // localnode.push(node) // 本地只记录文件节点的信息，即叶节点
                         }
                     }
                     server_stub.downloadReq(request, downloadcallback)

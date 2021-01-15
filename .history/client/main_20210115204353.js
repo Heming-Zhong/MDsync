@@ -75,7 +75,7 @@ ipcmain.on("upload", function(event, data) {
     fs.copyFileSync(localpath, localdata + clouddic + filename)
         // }
 
-    request = { uuid: userid, op: "uploadReq", address: clouddic + filename, extra: "" }
+    request = { uuid: userid, op: "uploadReq", address: clouddic + filename }
 
     // 上传RPC回调
     function uploadcallback(error, socketinfo) {
@@ -144,31 +144,8 @@ ipcmain.on("createdir", (event, data) => {
         }
     }
     op = "mkdir"
-    address = data
-    server_stub.fileOperation({ uuid: userid, op: op, address: address, extra: "" }, mkdircallback)
-})
-
-ipcmain.on("rename", (event, data) => {
-    path = data.path
-    newname = data.name
-
-    function renamecallback(error, response) {
-        if (error) {
-            alert("与服务器通信出现错误!")
-        } else {
-            status = response.status
-            if (status) {
-                console.log("Operation success")
-            }
-        }
-    }
-    request = {
-        uuid: userid,
-        op: "rename",
-        address: path,
-        extra: newname
-    }
-    server_stub.fileOperation(request, renamecallback)
+    address = data.orignal.path
+    server_stub.fileOperation({ uuid: userid, op: op, address: address }, mkdircallback)
 })
 
 // 从服务器获取新的远程文件目录树，并更新本地信息
@@ -176,8 +153,7 @@ function getfiletree() {
     server_stub.getFileTree({
         uuid: userid,
         op: "getTree",
-        address: "/",
-        extra: ""
+        address: "/"
     }, function(error, info) {
         if (error) {
             console.log("get file info error")
@@ -196,8 +172,6 @@ function getfiletree() {
 // 更新本地的待更新目录和文件
 function updatefiles() {
     // update nodes need to update
-
-
     for (i = 0; i < localnode.length; i++) {
         find_flag = false
 
@@ -211,27 +185,7 @@ function updatefiles() {
                     checkdir(localdata + userfiletree[j].path)
                     oldfilepath = localdata + localnode[i].path + localnode[i].text
                     newfilepath = localdata + userfiletree[j].path + userfiletree[j].text
-                    request = { uuid: userid, op: "downloadReq", address: newfilepath }
-
-                    function downloadcallback(error, socketinfo) {
-                        if (error) {
-                            alert("下载出现错误!")
-                        } else {
-                            ip = socketinfo.ip
-                            port = socketinfo.port
-                            stat = socketinfo.status
-                            let client = new net.Socket()
-                            client.connect(port, ip)
-                            client.setEncoding('utf8')
-                            client.on("data", function(data) {
-                                console.log(data)
-                                    // checkdir(localpath - filename)
-                                fs.writeFileSync(newfilepath, data)
-                            })
-                            console.log("下载成功")
-                        }
-                    }
-                    server_stub.downloadReq(request, downloadcallback)
+                    fs.copyFileSync(oldfilepath, newfilepath)
 
                     fs.unlinkSync(oldfilepath)
 
@@ -251,11 +205,10 @@ function updatefiles() {
 
 //通过服务器的时间戳判断是否需要更新本地信息
 function checkupdate() {
-    server_stub.getTimeStamp({
+    server_stub.gettimestamp({
             uuid: userid,
             op: "getTree",
-            address: "timestamp",
-            extra: ""
+            address: "timestamp"
         }),
         function(error, time) {
             localvectime = time

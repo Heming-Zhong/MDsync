@@ -196,8 +196,6 @@ function getfiletree() {
 // 更新本地的待更新目录和文件
 function updatefiles() {
     // update nodes need to update
-
-
     for (i = 0; i < localnode.length; i++) {
         find_flag = false
 
@@ -211,27 +209,7 @@ function updatefiles() {
                     checkdir(localdata + userfiletree[j].path)
                     oldfilepath = localdata + localnode[i].path + localnode[i].text
                     newfilepath = localdata + userfiletree[j].path + userfiletree[j].text
-                    request = { uuid: userid, op: "downloadReq", address: newfilepath }
-
-                    function downloadcallback(error, socketinfo) {
-                        if (error) {
-                            alert("下载出现错误!")
-                        } else {
-                            ip = socketinfo.ip
-                            port = socketinfo.port
-                            stat = socketinfo.status
-                            let client = new net.Socket()
-                            client.connect(port, ip)
-                            client.setEncoding('utf8')
-                            client.on("data", function(data) {
-                                console.log(data)
-                                    // checkdir(localpath - filename)
-                                fs.writeFileSync(newfilepath, data)
-                            })
-                            console.log("下载成功")
-                        }
-                    }
-                    server_stub.downloadReq(request, downloadcallback)
+                    fs.copyFileSync(oldfilepath, newfilepath)
 
                     fs.unlinkSync(oldfilepath)
 
