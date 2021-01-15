@@ -53,75 +53,6 @@ ipcmain.on('stub', (event, stub) => {
     console.log("#debug server stub loaded")
 })
 
-// 登录成功之后，将界面由登录界面切换成主界面
-ipcmain.on('loginsuccess', (event, id) => {
-    curwin = BrowserWindow.fromId(mainWindowID)
-    userid = id // 保存登录RPC返回的UID
-    curwin.loadFile('main.html') // 加载主界面
-    curwin.setSize(1080, 900)
-    setTimeout(updatelocaltree, 1500) // 设置检查同步状态的定时任务
-        // curwin.webContents.openDevTools()
-})
-
-//将本地文件上传到在线数据库的指定位置
-ipcmain.on("upload", function(event, data) {
-    var localpaths = data.localpath
-    var clouddic = data.cloudpath
-        // 暂时先不考虑相关资源文件的拷贝
-    for (var i = 0; i < localpaths.length; i++) {
-        fs.copyFileSync(localpaths[i], localdata + clouddic)
-    }
-
-    request = { uuid: userid, op: "uploadReq", address: clouddic }
-
-    function uploadcallback(error, socketinfo) {
-        if (error) {
-            alert("发送失败!")
-        } else {
-            ip = socketinfo.ip
-            port = socketinfo.port
-            stat = socketinfo.status
-            let client = new net.Socket()
-            client.connect(port, ip)
-            client.setEncoding('utf8')
-            for (i = 0; i < localpaths.length; i++) {
-                filecontent = fs.readFileSync(localpaths[i])
-                client.write(filecontent)
-            }
-            alert("发送成功!")
-        }
-    }
-    server_stub.uploadReq(request, uploadcallback)
-})
-
-// 将不存在于本地的文件下载到本地
-ipcmain.on("download", (event, data) => {
-    path = data.path
-    node = data.node
-    var localpath = localdata + path
-    request = { uuid: userid, op: "downloadReq", address: path }
-
-    function downloadcallback(error, socketinfo) {
-        if (error) {
-            alert("下载出现错误!")
-        } else {
-            ip = socketinfo.ip
-            port = socketinfo.port
-            stat = socketinfo.status
-            let client = new net.Socket()
-            client.connect(port, ip)
-            client.setEncoding('utf8')
-            client.on("data", function(data) {
-                console.log(data)
-                fs.writeFileSync(localpath, data)
-            })
-            console.log("下载成功")
-            localnode.push(node)
-        }
-    }
-    server_stub.downloadReq(request, downloadcallback)
-})
-
 // 从服务器获取新的远程文件目录树，并更新本地信息
 function getfiletree() {
     server_stub.getFileTree({
@@ -195,6 +126,74 @@ function checkupdate() {
         }
 }
 
+// 登录成功之后，将界面由登录界面切换成主界面
+ipcmain.on('loginsuccess', (event, id) => {
+    curwin = BrowserWindow.fromId(mainWindowID)
+    userid = id // 保存登录RPC返回的UID
+    curwin.loadFile('main.html') // 加载主界面
+    curwin.setSize(1080, 900)
+    setTimeout(updatelocaltree, 1500) // 设置检查同步状态的定时任务
+        // curwin.webContents.openDevTools()
+})
+
+//将本地文件上传到在线数据库的指定位置
+ipcmain.on("upload", function(event, data) {
+    var localpaths = data.localpath
+    var clouddic = data.cloudpath
+        // 暂时先不考虑相关资源文件的拷贝
+    for (var i = 0; i < localpaths.length; i++) {
+        fs.copyFileSync(localpaths[i], localdata + clouddic)
+    }
+
+    request = { uuid: userid, op: "uploadReq", address: clouddic }
+
+    function uploadcallback(error, socketinfo) {
+        if (error) {
+            alert("发送失败!")
+        } else {
+            ip = socketinfo.ip
+            port = socketinfo.port
+            stat = socketinfo.status
+            let client = new net.Socket()
+            client.connect(port, ip)
+            client.setEncoding('utf8')
+            for (i = 0; i < localpaths.length; i++) {
+                filecontent = fs.readFileSync(localpaths[i])
+                client.write(filecontent)
+            }
+            alert("发送成功!")
+        }
+    }
+    server_stub.uploadReq(request, uploadcallback)
+})
+
+// 将不存在于本地的文件下载到本地
+ipcmain.on("download", (event, data) => {
+    path = data.path
+    node = data.node
+    var localpath = localdata + path
+    request = { uuid: userid, op: "downloadReq", address: path }
+
+    function downloadcallback(error, socketinfo) {
+        if (error) {
+            alert("下载出现错误!")
+        } else {
+            ip = socketinfo.ip
+            port = socketinfo.port
+            stat = socketinfo.status
+            let client = new net.Socket()
+            client.connect(port, ip)
+            client.setEncoding('utf8')
+            client.on("data", function(data) {
+                console.log(data)
+                fs.writeFileSync(localpath, data)
+            })
+            console.log("下载成功")
+            localnode.push(node)
+        }
+    }
+    server_stub.downloadReq(request, downloadcallback)
+})
 
 // 检查本地更新的函数
 function updatelocaltree() {
