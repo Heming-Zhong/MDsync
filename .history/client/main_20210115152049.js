@@ -72,7 +72,6 @@ function getfiletree() {
                     if (newfiletree[index].timestamp < userfiletree[jndex].timestamp) {
                         alert("服务器时钟故障")
                         alert("服务中止")
-                            // exit
                     }
 
                     // using node id to find the same item 

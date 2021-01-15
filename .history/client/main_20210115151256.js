@@ -4,7 +4,7 @@ const rpc = require('./rpc')
 var fs = require('fs')
 const net = require('net')
 
-localdata = './local/' // 本地的数据根目录
+localdata = './' // 本地的数据根目录
 mainWindowID = 0 // 主窗口的ID
 userid = 0 // 登录后从服务器那里得到的用户UID
 var server_stub // 保存下来的服务器RPC存根 
@@ -14,7 +14,6 @@ var localvectime = 0 // 本次向量时间戳
 var updatingqueue = [] // 要更新的
 var localnode = []
 
-// 创建主窗口
 function createWindow() {
     const win = new BrowserWindow({
         width: 300,
@@ -25,17 +24,15 @@ function createWindow() {
         }
     })
 
-    win.loadFile('index.html') // 首先加载登录界面
+    win.loadFile('index.html')
     mainWindowID = win.id
         // var contents = win.webContents
-        // 打开调试界面，以后需要删去
     win.webContents.openDevTools()
 }
 
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
-    // 非macOS平台，关闭所有窗口就直接退出程序
     if (process.platform !== 'darwin') {
         app.quit()
     }
@@ -53,7 +50,8 @@ ipcmain.on('stub', (event, stub) => {
     console.log("#debug server stub loaded")
 })
 
-// 从服务器获取新的远程文件目录树，并更新本地信息
+
+
 function getfiletree() {
     server_stub.getFileTree({
         uuid: userid,
@@ -72,31 +70,24 @@ function getfiletree() {
                     if (newfiletree[index].timestamp < userfiletree[jndex].timestamp) {
                         alert("服务器时钟故障")
                         alert("服务中止")
-                            // exit
                     }
 
                     // using node id to find the same item 
                     if (newfiletree[index].id == userfiletree[jndex].id && newfiletree[index].timestamp > userfiletree[jndex].timestamp) {
-                        // if its a dir and its path is not changed, then we only need to update files inside it
-                        if (newfiletree[index].type == 'dir' && newfiletree[index].path == userfiletree[jndex].path) {
+                        if (newfiletree[index].type == 'dir' && newfiletree[index].text == userfiletree[jndex].text) {
                             continue
                         } else {
-                            // pushing this new node to the updating queue
                             updatingqueue.push(newfiletree[index])
                         }
                     }
                 }
             }
-            // replacing old tree with the new one
             userfiletree = newfiletree
-
-            // show new tree
             curwin.webContents.send("filetree", userfiletree)
         }
     })
 }
 
-// 更新本地的待更新目录和文件
 function updatefiles() {
     for (i in updatingqueue) {
         for (j in localnode) {
@@ -110,8 +101,7 @@ function updatefiles() {
     }
 }
 
-//通过服务器的时间戳判断是否需要更新本地信息
-function checkupdate() {
+function gettimestamp() {
     server_stub.gettimestamp({
             uuid: userid,
             op: "getTree",
@@ -201,7 +191,6 @@ ipcmain.on("download", (event, data) => {
     server_stub.downloadReq(request, downloadcallback)
 })
 
-// 检查本地更新的函数
 function updatelocaltree() {
-    checkupdate()
+    gettimestamp()
 }

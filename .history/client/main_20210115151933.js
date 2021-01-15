@@ -14,7 +14,6 @@ var localvectime = 0 // 本次向量时间戳
 var updatingqueue = [] // 要更新的
 var localnode = []
 
-// 创建主窗口
 function createWindow() {
     const win = new BrowserWindow({
         width: 300,
@@ -25,17 +24,15 @@ function createWindow() {
         }
     })
 
-    win.loadFile('index.html') // 首先加载登录界面
+    win.loadFile('index.html')
     mainWindowID = win.id
         // var contents = win.webContents
-        // 打开调试界面，以后需要删去
     win.webContents.openDevTools()
 }
 
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
-    // 非macOS平台，关闭所有窗口就直接退出程序
     if (process.platform !== 'darwin') {
         app.quit()
     }
@@ -72,7 +69,6 @@ function getfiletree() {
                     if (newfiletree[index].timestamp < userfiletree[jndex].timestamp) {
                         alert("服务器时钟故障")
                         alert("服务中止")
-                            // exit
                     }
 
                     // using node id to find the same item 
