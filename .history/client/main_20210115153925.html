@@ -87,6 +87,7 @@
                         "check_callback": true
                     }
                 }).on('select_node.jstree', function(event, data) {
+                    // console.log(data.node);
                     var ref = $('#jstree1').jstree(true);
                     var _l = data.node.li_attr;
                     console.log(_l);

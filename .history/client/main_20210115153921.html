@@ -87,6 +87,7 @@
                         "check_callback": true
                     }
                 }).on('select_node.jstree', function(event, data) {
+                    // console.log(data.node);
                     var ref = $('#jstree1').jstree(true);
                     var _l = data.node.li_attr;
                     console.log(_l);
@@ -95,8 +96,7 @@
                         // TO-DO：获取文件内容
                         path = ref.get_path(data.node, '/')
                         console.log(path)
-
-                        // if you click a file-node, that means download it
+                            // if you click a file-node, that means download it
                         _download(data.node, path)
                     } else {
                         // 说明是目录，什么也不做

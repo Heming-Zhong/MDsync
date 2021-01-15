@@ -134,8 +134,32 @@ function getfiletree() {
         } else { // 得到新的树，并且和旧的本地树比较，并记录不同之处
             newfiletree = JSON.parse(info)
 
-            // 只更新树信息，在后面的函数中更新本地内容
             userfiletree = newfiletree
+
+            // // get all files needed to be update
+            // for (index in newfiletree) {
+            //     for (jndex in userfiletree) {
+            //         //very unlikely
+            //         if (newfiletree[index].timestamp < userfiletree[jndex].timestamp) {
+            //             alert("服务器时钟故障")
+            //             alert("服务中止")
+            //                 // exit
+            //         }
+
+            //         // using node id to find the same item 
+            //         if (newfiletree[index].id == userfiletree[jndex].id && newfiletree[index].timestamp > userfiletree[jndex].timestamp) {
+            //             // only keep the updating record of files
+            //             if (newfiletree[index].type == 'dir') {
+            //                 continue
+            //             } else {
+            //                 // pushing this new node to the updating queue
+            //                 updatingqueue.push(newfiletree[index])
+            //             }
+            //         }
+            //     }
+            // }
+            // // replacing old tree with the new one
+            // userfiletree = newfiletree
 
             // show new tree
             curwin.webContents.send("filetree", userfiletree)
@@ -148,8 +172,7 @@ function updatefiles() {
     // update nodes need to update
     for (i = 0; i < localnode.length; i++) {
         find_flag = false
-
-        // find in user file tree
+            // find
         for (j in userfiletree) {
             // find the node in tree
             if (localnode[i].id == userfiletree[j].id) {
@@ -171,6 +194,31 @@ function updatefiles() {
             fs.unlinkSync(localdata + localnode[i].path)
         }
     }
+
+    // for (i in updatingqueue) {
+    //     for (j in localnode) {
+    //         if (updatingqueue[i].id == localnode[j].id) {
+    //             // copy file to new location
+    //             fs.copyFileSync(localdata + localnode[j].path, localdata + updatingqueue[i].path)
+
+    //             // delete old file 
+    //             fs.unlinkSync(localdata + localnode[j].path)
+
+    //             // update local node info
+    //             localnode[j] = updatingqueue[i]
+    //         }
+    //     }
+    // }
+
+    // // check if any local file been removed
+    // for (i = 0; i < localnode.length; i++) {
+    //     // if this node 
+    //     if (userfiletree.includes(localnode[i])) {} else {
+    //         localnode.splice(i, 1)
+    //         fs.unlinkSync(localdata + localnode[i].path)
+    //         i--
+    //     }
+    // }
     console.log("local copies all updated")
 }
 
