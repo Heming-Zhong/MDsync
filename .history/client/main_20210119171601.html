@@ -251,7 +251,7 @@
                 var currNode = ref.get_node(currNodeid);
                 // rm
                 console.log("starting delete...")
-                if (ref.is_leaf(currNodeid) && currNode.original.type != 'dir') {
+                if (ref.is_leaf(currNodeid) && curnode.original.type != 'dir') {
                     console.log("rm...")
                     ipc.send("rm", {
                         path: currNode.original.path + currNode.text,

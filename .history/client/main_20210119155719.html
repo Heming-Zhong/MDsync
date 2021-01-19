@@ -92,11 +92,11 @@
                         }],
                         "themes": {
                             "variant": "large", //加大
-                            "ellipsis": false
+                            "ellipsis": false //文字多时省略
                         },
+                        "plugins": ["themes", "html_data", "contextmenu", "dnd"],
                         "check_callback": true
-                    },
-                    "plugins": ["contextmenu", "dnd"],
+                    }
                 }).on('select_node.jstree', function(event, data) {
                     var ref = $('#jstree1').jstree(true);
                     // var _l = data.node.li_attr;
@@ -117,10 +117,7 @@
                     console.log("action:" + data.action);
                     console.log(data.node);
                 }).on('move_node.jstree', function(event, data) {
-                    parent = data.parent
-                    node = data.node
-                    console.log(parent)
-                    console.log(node)
+
                 });
 
             });
@@ -244,34 +241,11 @@
                 ref.edit(currNodeid, currNode.text, editcallback)
             }
 
-            // 文件和目录删除触发器
+            // 文件删除触发器
             function del() {
                 var ref = $('#jstree1').jstree(true);
-                var currNodeid = _getCurrNode();
-                var currNode = ref.get_node(currNodeid);
-                // rm
-                console.log("starting delete...")
-                if (ref.is_leaf(currNodeid) && currNode.original.type != 'dir') {
-                    console.log("rm...")
-                    ipc.send("rm", {
-                        path: currNode.original.path + currNode.text,
-                        dir: false
-                    })
-                } else { // rmdir
-                    console.log("rmdir...")
-                    ipc.send("rm", {
-                        path: currNode.original.path + currNode.text + '/',
-                        dir: true
-                    })
-                }
-                ipc.on('rmstate', (event, msg) => {
-                    console.log("recieving state")
-                    if (msg == 0) {
-                        ref.delete_node(currNode);
-                    } else {
-                        console.log("删除失败")
-                    }
-                })
+                var currNode = _getCurrNode();
+                ref.delete_node(currNode);
             }
 
 

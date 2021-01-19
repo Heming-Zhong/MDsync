@@ -171,7 +171,6 @@ ipcmain.on("rename", (event, data) => {
     server_stub.fileOperation(request, renamecallback)
 })
 
-// 向服务器请求执行删除操作
 ipcmain.on("rm", (event, data) => {
     path = data.path
     dir = data.dir

@@ -138,7 +138,7 @@ ipcmain.on("createdir", (event, data) => {
             alert("与服务器通信出现错误!")
         } else {
             status = response.status
-            if (status == 0) {
+            if (status) {
                 console.log("Operation success")
             }
         }
@@ -157,7 +157,7 @@ ipcmain.on("rename", (event, data) => {
             alert("与服务器通信出现错误!")
         } else {
             status = response.status
-            if (status == 0) {
+            if (status) {
                 console.log("Operation success")
             }
         }
@@ -171,27 +171,15 @@ ipcmain.on("rename", (event, data) => {
     server_stub.fileOperation(request, renamecallback)
 })
 
-// 向服务器请求执行删除操作
 ipcmain.on("rm", (event, data) => {
-    path = data.path
-    dir = data.dir
-    op = dir ? "rmdir" : "rm"
-
-    function rmcallback(error, response) {
-        if (error) {
-            alert("与服务器通信出现错误!")
-        } else {
-            curwin.webContents.send("rmstate", response.status)
-        }
-    }
-    server_stub.fileOperation({
-        uuid: userid,
-        op: op,
-        address: path,
-        extra: ""
-    }, rmcallback)
+    path = data
+    op = "rm"
+    server_stub.fileOperation({ uuid: userid, op: op, address: path, extra: "" })
 })
 
+ipcmain.on("rmdir", (event, data) => {
+
+})
 
 // 从服务器获取新的远程文件目录树，并更新本地信息
 function getfiletree() {
