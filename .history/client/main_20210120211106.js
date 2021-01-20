@@ -85,7 +85,7 @@ ipcmain.on("upload", function(event, data) {
     // 上传RPC回调
     function uploadcallback(error, socketinfo) {
         if (error) {
-            console.log("发送失败!")
+            alert("发送失败!")
         } else {
             ip = socketinfo.ip
             port = socketinfo.port
@@ -99,21 +99,13 @@ ipcmain.on("upload", function(event, data) {
             filecontent = fs.readFileSync(localpath)
             client.write(filecontent)
                 // }
-            console.log("发送成功!")
+            alert("发送成功!")
             localnode.push(filenode)
             if (postfix == 'md') {
                 mdfileshowndata = tempdata
                 curwin.webContents.send("update shown", mdfileshowndata)
             }
         }
-    }
-    filecontent = fs.readFileSync(localpath)
-    console.log("发送成功!")
-    localnode.push(filenode)
-    if (postfix == 'md') {
-        // 不要忘记转换编码
-        mdfileshowndata = filecontent.toString("utf8")
-        curwin.webContents.send("update shown", mdfileshowndata)
     }
     server_stub.uploadReq(request, uploadcallback)
 })
@@ -130,7 +122,7 @@ ipcmain.on("download", (event, data) => {
 
     function downloadcallback(error, socketinfo) {
         if (error) {
-            console.log("下载出现错误!")
+            alert("下载出现错误!")
         } else {
             ip = socketinfo.ip
             port = socketinfo.port
@@ -162,7 +154,7 @@ ipcmain.on("createdir", (event, data) => {
 
     function mkdircallback(error, response) {
         if (error) {
-            console.log("与服务器通信出现错误!")
+            alert("与服务器通信出现错误!")
         } else {
             status = response.status
             if (status == 0) {
@@ -179,7 +171,7 @@ ipcmain.on("createdir", (event, data) => {
 ipcmain.on("createfile", (event, data) => {
     function newfilecallback(error, response) {
         if (error) {
-            console.log("与服务器通信出现错误!")
+            alert("与服务器通信出现错误!")
         } else {
             status = response.status
             if (status == 0) {
@@ -196,7 +188,7 @@ ipcmain.on("rename", (event, data) => {
 
     function renamecallback(error, response) {
         if (error) {
-            console.log("与服务器通信出现错误!")
+            alert("与服务器通信出现错误!")
         } else {
             status = response.status
             if (status == 0) {
@@ -221,7 +213,7 @@ ipcmain.on("rm", (event, data) => {
 
     function rmcallback(error, response) {
         if (error) {
-            console.log("与服务器通信出现错误!")
+            alert("与服务器通信出现错误!")
         } else {
             curwin.webContents.send("rmstate", response.status)
         }
@@ -279,7 +271,7 @@ function updatefiles() {
 
                     function downloadcallback(error, socketinfo) {
                         if (error) {
-                            console.log("下载出现错误!")
+                            alert("下载出现错误!")
                         } else {
                             ip = socketinfo.ip
                             port = socketinfo.port

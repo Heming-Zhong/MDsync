@@ -111,8 +111,7 @@ ipcmain.on("upload", function(event, data) {
     console.log("发送成功!")
     localnode.push(filenode)
     if (postfix == 'md') {
-        // 不要忘记转换编码
-        mdfileshowndata = filecontent.toString("utf8")
+        mdfileshowndata = filecontent.toString()
         curwin.webContents.send("update shown", mdfileshowndata)
     }
     server_stub.uploadReq(request, uploadcallback)

@@ -69,7 +69,6 @@ ipcmain.on("upload", function(event, data) {
     var localpath = data.localpath
     var clouddic = data.cloudpath
     var filename = data.filename
-    var filenode = data.treenode
 
     // 暂时先不考虑相关资源文件的拷贝，只拷贝目标文件
     // for (var i = 0; i < localpaths.length; i++) {
@@ -77,15 +76,12 @@ ipcmain.on("upload", function(event, data) {
     fs.copyFileSync(localpath, localdata + clouddic + filename)
         // }
 
-    arr = filename.split('.')
-    var postfix = arr[arr.length - 1]
-
     request = { uuid: userid, op: "newFileReq", address: clouddic + filename, extra: "" }
 
     // 上传RPC回调
     function uploadcallback(error, socketinfo) {
         if (error) {
-            console.log("发送失败!")
+            alert("发送失败!")
         } else {
             ip = socketinfo.ip
             port = socketinfo.port
@@ -99,21 +95,8 @@ ipcmain.on("upload", function(event, data) {
             filecontent = fs.readFileSync(localpath)
             client.write(filecontent)
                 // }
-            console.log("发送成功!")
-            localnode.push(filenode)
-            if (postfix == 'md') {
-                mdfileshowndata = tempdata
-                curwin.webContents.send("update shown", mdfileshowndata)
-            }
+            alert("发送成功!")
         }
-    }
-    filecontent = fs.readFileSync(localpath)
-    console.log("发送成功!")
-    localnode.push(filenode)
-    if (postfix == 'md') {
-        // 不要忘记转换编码
-        mdfileshowndata = filecontent.toString("utf8")
-        curwin.webContents.send("update shown", mdfileshowndata)
     }
     server_stub.uploadReq(request, uploadcallback)
 })
@@ -130,7 +113,7 @@ ipcmain.on("download", (event, data) => {
 
     function downloadcallback(error, socketinfo) {
         if (error) {
-            console.log("下载出现错误!")
+            alert("下载出现错误!")
         } else {
             ip = socketinfo.ip
             port = socketinfo.port
@@ -142,14 +125,10 @@ ipcmain.on("download", (event, data) => {
                 console.log(data)
                 checkdir(localpath - filename)
                 fs.writeFileSync(localpath, data)
-                tempdata += data
+                arr = filename.split('.')
+                postfix = arr[arr.length - 1]
+                if (postfix.length)
             })
-            arr = filename.split('.')
-            postfix = arr[arr.length - 1]
-            if (postfix == 'md') {
-                mdfileshowndata = tempdata
-                curwin.webContents.send("update shown", mdfileshowndata)
-            }
             console.log("下载成功")
             localnode.push(node) // 本地只记录文件节点的信息，即叶节点
         }
@@ -162,7 +141,7 @@ ipcmain.on("createdir", (event, data) => {
 
     function mkdircallback(error, response) {
         if (error) {
-            console.log("与服务器通信出现错误!")
+            alert("与服务器通信出现错误!")
         } else {
             status = response.status
             if (status == 0) {
@@ -179,7 +158,7 @@ ipcmain.on("createdir", (event, data) => {
 ipcmain.on("createfile", (event, data) => {
     function newfilecallback(error, response) {
         if (error) {
-            console.log("与服务器通信出现错误!")
+            alert("与服务器通信出现错误!")
         } else {
             status = response.status
             if (status == 0) {
@@ -196,7 +175,7 @@ ipcmain.on("rename", (event, data) => {
 
     function renamecallback(error, response) {
         if (error) {
-            console.log("与服务器通信出现错误!")
+            alert("与服务器通信出现错误!")
         } else {
             status = response.status
             if (status == 0) {
@@ -221,7 +200,7 @@ ipcmain.on("rm", (event, data) => {
 
     function rmcallback(error, response) {
         if (error) {
-            console.log("与服务器通信出现错误!")
+            alert("与服务器通信出现错误!")
         } else {
             curwin.webContents.send("rmstate", response.status)
         }
@@ -279,7 +258,7 @@ function updatefiles() {
 
                     function downloadcallback(error, socketinfo) {
                         if (error) {
-                            console.log("下载出现错误!")
+                            alert("下载出现错误!")
                         } else {
                             ip = socketinfo.ip
                             port = socketinfo.port

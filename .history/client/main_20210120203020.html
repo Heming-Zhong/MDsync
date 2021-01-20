@@ -133,11 +133,8 @@
             // 文件上传触发器
             function upload() {
                 ref = $('#jstree1').jstree(true)
-                res = _getCurrNode()
-                console.log(res)
-                nodeid = res.id
-                state = res.state
-                if (state == false) {
+                nodeid = _getCurrNode()
+                if (nodeid == false) {
                     alert("请先选中一个目录位置!")
                 } else {
                     node = ref.get_node(nodeid)
@@ -151,30 +148,17 @@
                             title: "请选择要上传的文件",
                         }).then(result => {
                             ref = $('#jstree1').jstree(true)
-                            node = _getCurrNode().id
+                            node = _getCurrNode()
                             console.log(result)
                             if (!result.canceled) {
                                 filepath = result.filePaths[0]
                                 filename = filepath.substr(filepath.lastIndexOf('/') + 1)
                                 cloudpath = ref.get_path(node, '/') + '/'
                                 console.log(cloudpath)
-
-                                var timestamp = ref.get_node(0).original.timestamp
-
-                                newNodeid = ref.create_node(nodeid, {
-                                    "text": filename,
-                                    "type": "file",
-                                    "timestamp": timestamp,
-                                    "path": cloudpath + filename + "/"
-                                });
-
-                                console.log(newNodeid)
-                                newNode = ref.get_node(newNodeid)
                                 ipc.send("upload", {
-                                    localpath: filepath,
+                                    localpath: filepaths,
                                     cloudpath: cloudpath,
-                                    filename: filename,
-                                    treenode: newNode
+                                    filename: filename
                                 })
                             } else {
                                 console.log("upload canceled")
@@ -199,10 +183,8 @@
             function createdir() {
                 var ref = $('#jstree1').jstree(true);
 
-                res = _getCurrNode();
-                var currNodeid = res.id;
-                state = res.state;
-                if (state == false) {
+                var currNodeid = _getCurrNode();
+                if (currNodeid == false) {
                     alert("请先选中一个目录!")
                 } else {
                     curnode = ref.get_node(currNodeid)
@@ -286,79 +268,67 @@
             // 项目重命名触发器
             function rename() {
                 var ref = $('#jstree1').jstree(true);
-                var res = _getCurrNode();
-                var currNodeid = res.id;
-                var state = res.state;
-                if (state == false) {
-                    alert("请先选中一个项!")
-                } else {
-                    var currNode = ref.get_node(currNodeid)
+                var currNodeid = _getCurrNode();
+                var currNode = ref.get_node(currNodeid)
 
-                    var oldname = currNode.text
+                var oldname = currNode.text
 
-                    function editcallback(node, state, canceled) {
-                        if (!canceled) {
-                            if (state) {
-                                console.log(node)
-                                if (oldname != node.text) {
-                                    ipc.send("rename", {
-                                        path: node.original.path + oldname,
-                                        name: node.text
-                                    })
-                                }
-                                // newNode = ref.get_node(newNodeid)
-                            } else {
-                                console.log("edit state error")
+                function editcallback(node, state, canceled) {
+                    if (!canceled) {
+                        if (state) {
+                            console.log(node)
+                            if (oldname != node.text) {
+                                ipc.send("rename", {
+                                    path: node.original.path + oldname,
+                                    name: node.text
+                                })
                             }
+                            // newNode = ref.get_node(newNodeid)
                         } else {
-                            console.log("edit cancelled")
-                                // ipc.send("rename", {
-                                //     path: node.original.path + oldname,
-                                //     name: node.text
-                                // })
+                            console.log("edit state error")
                         }
+                    } else {
+                        console.log("edit cancelled")
+                            // ipc.send("rename", {
+                            //     path: node.original.path + oldname,
+                            //     name: node.text
+                            // })
                     }
-                    ref.edit(currNodeid, currNode.text, editcallback)
                 }
+                ref.edit(currNodeid, currNode.text, editcallback)
             }
 
             // 文件和目录删除触发器
             function del() {
                 var ref = $('#jstree1').jstree(true);
-                var res = _getCurrNode();
-                var currNodeid = res.id;
-                state = res.state;
-                if (state == false) {
-                    alert("请先选中一个位置!")
+                var currNodeid = _getCurrNode();
+                if (currNodeid == 0) {
+                    alert("不能删除根目录!")
                 } else {
-                    if (currNodeid == 0) {
-                        alert("不能删除根目录!")
-                    } else {
-                        var currNode = ref.get_node(currNodeid);
-                        // rm
-                        console.log("starting delete...")
-                        if (ref.is_leaf(currNodeid) && currNode.original.type != 'dir') {
-                            console.log("rm...")
-                            ipc.send("rm", {
-                                path: currNode.original.path + currNode.text,
-                                dir: false
-                            })
-                        } else { // rmdir
-                            console.log("rmdir...")
-                            ipc.send("rm", {
-                                path: currNode.original.path + currNode.text + '/',
-                                dir: true
-                            })
-                        }
-                        ipc.on('rmstate', (event, msg) => {
-                            console.log("recieving state")
-                            if (msg == 0) {
-                                ref.delete_node(currNode);
-                            } else {
-                                console.log("删除失败")
-                            }
+                    var currNode = ref.get_node(currNodeid);
+                    // rm
+                    console.log("starting delete...")
+                    if (ref.is_leaf(currNodeid) && currNode.original.type != 'dir') {
+                        console.log("rm...")
+                        ipc.send("rm", {
+                            path: currNode.original.path + currNode.text,
+                            dir: false
+                        })
+                    } else { // rmdir
+                        console.log("rmdir...")
+                        ipc.send("rm", {
+                            path: currNode.original.path + currNode.text + '/',
+                            dir: true
                         })
                     }
+                    ipc.on('rmstate', (event, msg) => {
+                        console.log("recieving state")
+                        if (msg == 0) {
+                            ref.delete_node(currNode);
+                        } else {
+                            console.log("删除失败")
+                        }
+                    })
                 }
             }
 
@@ -386,17 +356,10 @@
                 console.log(sel);
                 if (!sel.length) {
                     console.log("----");
-                    // 不能直接通过返回false表示获取失败，因为id为0时也是false
-                    return {
-                        id: 0,
-                        state: false
-                    };
+                    return false;
                 }
                 sel = sel[0];
-                return {
-                    id: sel,
-                    state: true
-                };
+                return sel;
             }
         </script>
 
@@ -439,7 +402,6 @@
                     #show-area {
                         height: 600px;
                         background-color: #FCF6E5;
-                        overflow: auto;
                     }
                     
                     .clearfix:before {
@@ -451,23 +413,22 @@
                 <script>
                     // 更新显示的MD数据
                     ipc.on("update shown", (event, data) => {
-                        console.log(data)
                         var converter = new showdown.Converter();
                         var html = converter.makeHtml(data);
                         document.getElementById("show-area").innerHTML = html;
                     })
 
-                    // function mdSwitch() {
-                    //     var mdValue = document.getElementById("md-area").value;
-                    //     var converter = new showdown.Converter();
-                    //     var html = converter.makeHtml(mdValue);
-                    //     document.getElementById("show-area").innerHTML = html;
-                    // }
+                    function mdSwitch() {
+                        var mdValue = document.getElementById("md-area").value;
+                        var converter = new showdown.Converter();
+                        var html = converter.makeHtml(mdValue);
+                        document.getElementById("show-area").innerHTML = html;
+                    }
                 </script>
                 <div id="area">
                     <table>
                         <tr>
-                            <!-- <td><textarea name="" id="md-area" onkeyup=mdSwitch()></textarea></td> -->
+                            <td><textarea name="" id="md-area" onkeyup=mdSwitch()></textarea></td>
                             <td>
                                 <div id="show-area" class="clearfix"></div>
                             </td>

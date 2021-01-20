@@ -1,0 +1,614 @@
+<OCTYPE html>
+    <html>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>主页</title>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    </head>
+
+    <body>
+        <script>
+            // const en = require('./client-encrypt')
+            const rpc = require('./rpc')
+            const {
+                dialog
+            } = require('electron').remote
+        </script>
+        <script>
+            if (typeof module === 'object') {
+                window.module = module;
+                module = undefined;
+            }
+        </script>
+        <!-- <script src="no           /jquery/3.1.1/jquery.min.js"></script> -->
+        <script src="node_modules/jquery/dist/jquery.min.js"></script>
+        <link rel="stylesheet" href="jstree/dist/themes/default/style.min.css" />
+        <script src="jstree/dist/jstree.min.js"></script>
+        <script>
+            if (window.module) module = window.module;
+        </script>
+        <h1>主页</h1>
+
+        <!-- <button onclick="test()">测试</button> -->
+
+        <script>
+            const ipc = require('electron').ipcRenderer
+            ipc.on("filetree", (event, msg) => {
+                $('#jstree1').jstree({
+                    "core": msg,
+                    "check_callback": true
+                }).on('select_node.jstree', function(event, data) {
+                    console.log(data.node);
+                }).on('changed.jstree', function(event, data) {
+                    console.log("-----------changed.jstree");
+                    console.log("action:" + data.action);
+                    console.log(data.node);
+                });
+            })
+            $(function() {
+
+                $('#jstree1').jstree({
+                    "core": {
+                        "data": [{
+                            "id": "0",
+                            "parent": "#",
+                            "state": {
+                                "disabled": false,
+                                "opened": true,
+                                "selected": false
+                            },
+                            "text": "夏宇信息",
+                            "timestamp": 0,
+                            "type": "dir",
+                            "path": "/",
+                        }, {
+                            "id": "69",
+                            "parent": "0",
+                            "text": "工程.pdf",
+                            "timestamp": 0,
+                            "type": "file",
+                            "path": "夏宇信息/"
+                        }, {
+                            "id": "5",
+                            "parent": "0",
+                            "text": "行政",
+                            "timestamp": 0,
+                            "type": "dir",
+                            "path": "夏宇信息/"
+                        }, {
+                            "id": "71",
+                            "parent": "0",
+                            "text": "迷",
+                            "timestamp": 0,
+                            "type": "dir"
+                        }, {
+                            "id": "1",
+                            "parent": "0",
+                            "text": "技术",
+                            "timestamp": 0,
+                            "type": "dir",
+                            "path": "夏宇信息/"
+                        }],
+                        "themes": {
+                            "variant": "large", //加大
+                            "ellipsis": false
+                        },
+                        "check_callback": true
+                    },
+                    "plugins": ["contextmenu", "dnd"],
+                }).on('select_node.jstree', function(event, data) {
+                    var ref = $('#jstree1').jstree(true);
+                    // var _l = data.node.li_attr;
+                    console.log(data.node.original.type);
+                    // 叶节点同时类型不是dir，说明是文件
+                    if (ref.is_leaf(data.node) && data.node.original.type != 'dir') {
+                        // TO-DO：获取文件内容
+                        path = ref.get_path(data.node, '/')
+                        console.log(path)
+
+                        // if you click a file-node, that means download it
+                        _download(data.node, path)
+                    } else {
+                        // 说明是目录，什么也不做
+                    }
+                }).on('changed.jstree', function(event, data) {
+                    console.log("-----------changed.jstree");
+                    console.log("action:" + data.action);
+                    console.log(data.node);
+                }).on('move_node.jstree', function(event, data) {
+                    parent = data.parent
+                    node = data.node
+                    console.log(parent)
+                    console.log(node)
+                });
+
+            });
+
+            // 文件上传触发器
+            function upload() {
+                ref = $('#jstree1').jstree(true)
+                nodeid = _getCurrNode()
+                node = ref.get_node(nodeid)
+                    // console.log(node)
+                    // 只有选中非叶节点时才可以上传
+                if (ref.is_leaf(node) && node.original.type != 'dir') {
+                    alert("请选中一个目录！")
+                } else {
+                    // 打开选择文件对话框
+                    dialog.showOpenDialog({
+                        title: "请选择要上传的文件",
+                    }).then(result => {
+                        ref = $('#jstree1').jstree(true)
+                        node = _getCurrNode()
+                        console.log(result)
+                        if (!result.canceled) {
+                            filepath = result.filePaths[0]
+                            filename = filepath.substr(filepath.lastIndexOf('/') + 1)
+                            cloudpath = ref.get_path(node, '/') + '/'
+                            console.log(cloudpath)
+                            ipc.send("upload", {
+                                localpath: filepaths,
+                                cloudpath: cloudpath,
+                                filename: filename
+                            })
+                        } else {
+                            console.log("upload canceled")
+                        }
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                }
+            }
+
+            // 文件下载触发器
+            function _download(node, path) {
+                ipc.send("download", {
+                    node: node,
+                    path: path,
+                    name: node.text
+                })
+            }
+
+            // 创建目录(mkdir)触发器
+            function createdir() {
+                var ref = $('#jstree1').jstree(true);
+
+                var currNodeid = _getCurrNode();
+                curnode = ref.get_node(currNodeid)
+                    // not a directory
+                if (ref.is_leaf(currNodeid) && curnode.original.type != 'dir') {
+                    currNodeid = ref.get_parent(currNodeid)
+                    curnode = ref.get_node(currNodeid)
+                } else {} // do nothing
+
+                // ref.edit(ref, curnode.val)
+                // 根目录节点ID为0
+                var timestamp = ref.get_node(0).original.timestamp
+
+                newNodeid = ref.create_node(currNodeid, {
+                    "type": "dir",
+                    "timestamp": timestamp,
+                    "path": curnode.original.path + curnode.text + '/'
+                });
+
+                function editcallback(node, state, canceled) {
+                    if (!canceled) {
+                        if (state) {
+                            console.log(node)
+                                // newNode = ref.get_node(newNodeid)
+                            ipc.send("createdir", node.original.path)
+                        } else {
+                            console.log("edit state error")
+                        }
+                    } else {
+                        console.log("edit cancelled")
+                        ipc.send("createdir", node)
+                    }
+                }
+                if (newNodeid) {
+                    ref.edit(newNodeid, "newfolder", editcallback)
+                }
+            }
+
+            // function createfile() {
+            //     var ref = $('#jstree1').jstree(true);
+
+            //     var currNodeid = _getCurrNode();
+            //     curnode = ref.get_node(currNodeid)
+
+            //     // not a directory, create in the same level
+            //     if (ref.is_leaf(currNodeid) && curnode.original.type != 'dir') {
+            //         currNodeid = ref.get_parent(currNodeid)
+            //         curnode = ref.get_node(currNodeid)
+            //     } else {} // do nothing
+
+            //     // ref.edit(ref, curnode.val)
+            //     // 根目录节点ID为0
+            //     var timestamp = ref.get_node(0).original.timestamp
+
+            //     newNodeid = ref.create_node(currNodeid, {
+            //         "type": "file",
+            //         "timestamp": timestamp,
+            //         "path": curnode.original.path + curnode.text + '/'
+            //     });
+
+            //     function editcallback(node, state, canceled) {
+            //         if (!canceled) {
+            //             if (state) {
+            //                 console.log(node)
+            //                     // newNode = ref.get_node(newNodeid)
+            //                 ipc.send("createfile", node.original.path)
+            //             } else {
+            //                 console.log("edit state error")
+            //             }
+            //         } else {
+            //             console.log("edit cancelled")
+            //             ipc.send("createfile", node)
+            //         }
+            //     }
+            //     if (newNodeid) {
+            //         ref.edit(newNodeid, "newfile.md", editcallback)
+            //     }
+            // }
+
+            // 项目重命名触发器
+            function rename() {
+                var ref = $('#jstree1').jstree(true);
+                var currNodeid = _getCurrNode();
+                var currNode = ref.get_node(currNodeid)
+
+                var oldname = currNode.text
+
+                function editcallback(node, state, canceled) {
+                    if (!canceled) {
+                        if (state) {
+                            console.log(node)
+                            if (oldname != node.text) {
+                                ipc.send("rename", {
+                                    path: node.original.path + oldname,
+                                    name: node.text
+                                })
+                            }
+                            // newNode = ref.get_node(newNodeid)
+                        } else {
+                            console.log("edit state error")
+                        }
+                    } else {
+                        console.log("edit cancelled")
+                            // ipc.send("rename", {
+                            //     path: node.original.path + oldname,
+                            //     name: node.text
+                            // })
+                    }
+                }
+                ref.edit(currNodeid, currNode.text, editcallback)
+            }
+
+            // 文件和目录删除触发器
+            function del() {
+                var ref = $('#jstree1').jstree(true);
+                var currNodeid = _getCurrNode();
+                var currNode = ref.get_node(currNodeid);
+                // rm
+                console.log("starting delete...")
+                if (ref.is_leaf(currNodeid) && currNode.original.type != 'dir') {
+                    console.log("rm...")
+                    ipc.send("rm", {
+                        path: currNode.original.path + currNode.text,
+                        dir: false
+                    })
+                } else { // rmdir
+                    console.log("rmdir...")
+                    ipc.send("rm", {
+                        path: currNode.original.path + currNode.text + '/',
+                        dir: true
+                    })
+                }
+                ipc.on('rmstate', (event, msg) => {
+                    console.log("recieving state")
+                    if (msg == 0) {
+                        ref.delete_node(currNode);
+                    } else {
+                        console.log("删除失败")
+                    }
+                })
+            }
+
+
+            function moveup() {
+                var ref = $('#jstree1').jstree(true);
+                var currNode = _getCurrNode();
+                var prevNode = ref.get_prev_dom(currNode, true);
+                ref.move_node(currNode, prevNode, 'before');
+            }
+
+            function movedown() {
+                var ref = $('#jstree1').jstree(true);
+                var currNode = _getCurrNode();
+                var nextNode = ref.get_next_dom(currNode, true); //返回兄弟节点的下一个节点
+                ref.move_node(currNode, nextNode, 'after');
+            }
+
+            /**
+             *    获取当前所选中的结点
+             */
+            function _getCurrNode() {
+                var ref = $('#jstree1').jstree(true),
+                    sel = ref.get_selected();
+                console.log(sel);
+                if (!sel.length) {
+                    console.log("----");
+                    return false;
+                }
+                sel = sel[0];
+                return sel;
+            }
+        </script>
+
+        <body>
+            <input type="button" value="创建目录" onclick="createdir();">
+            <input type="button" value="新建文件" onclick="createfile();">
+            <input type="button" value="重命名" onclick="rename();">
+            <input type="button" value="删除" onclick="del();">
+            <input type="button" value="上传" onclick="upload()">
+            <input type="button" value="上移" onclick="moveup();">
+            <input type="button" value="下移" onclick="movedown();">
+            <div id="jstree1" style="width:200px;background:#fff322"></div>
+        </body>
+
+
+    </body>
+
+    <body>
+        <!-- <div style="font-size: 20px;height: 30px; text-align: center;color: #009689; font-weight: bold;">Markdown转换为HTML的Demo</div> -->
+        <!-- <style>
+            .markdown-here-wrapper {
+                font-size: 16px;
+                line-height: 1.8em;
+                letter-spacing: 0.1em;
+            }
+            
+            pre,
+            code {
+                font-size: 14px;
+                font-family: Roboto, 'Courier New', Consolas, Inconsolata, Courier, monospace;
+                margin: auto 5px;
+            }
+            
+            code {
+                white-space: pre-wrap;
+                border-radius: 2px;
+                display: inline;
+            }
+            
+            pre {
+                font-size: 15px;
+                line-height: 1.4em;
+                display: block;
+                !important;
+            }
+            
+            pre code {
+                white-space: pre;
+                overflow: auto;
+                border-radius: 3px;
+                padding: 1px 1px;
+                display: block !important;
+            }
+            
+            strong,
+            b {
+                color: #BF360C;
+            }
+            
+            em,
+            i {
+                color: #009688;
+            }
+            
+            hr {
+                border: 1px solid #BF360C;
+                margin: 1.5em auto;
+            }
+            
+            p {
+                margin: 1.5em 5px !important;
+            }
+            
+            table,
+            pre,
+            dl,
+            blockquote,
+            q,
+            ul,
+            ol {
+                margin: 10px 5px;
+            }
+            
+            ul,
+            ol {
+                padding-left: 15px;
+            }
+            
+            li {
+                margin: 10px;
+            }
+            
+            li p {
+                margin: 10px 0 !important;
+            }
+            
+            ul ul,
+            ul ol,
+            ol ul,
+            ol ol {
+                margin: 0;
+                padding-left: 10px;
+            }
+            
+            ul {
+                list-style-type: circle;
+            }
+            
+            dl {
+                padding: 0;
+            }
+            
+            dl dt {
+                font-size: 1em;
+                font-weight: bold;
+                font-style: italic;
+            }
+            
+            dl dd {
+                margin: 0 0 10px;
+                padding: 0 10px;
+            }
+            
+            blockquote,
+            q {
+                border-left: 2px solid #009688;
+                padding: 0 10px;
+                color: #777;
+                quotes: none;
+                margin-left: 1em;
+            }
+            
+            blockquote::before,
+            blockquote::after,
+            q::before,
+            q::after {
+                content: none;
+            }
+            
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                margin: 20px 0 10px;
+                padding: 0;
+                font-style: bold !important;
+                color: #009688 !important;
+                text-align: center !important;
+                margin: 1.5em 5px !important;
+                padding: 0.5em 1em !important;
+            }
+            
+            h1 {
+                font-size: 24px !important;
+                border-bottom: 1px solid #ddd !important;
+            }
+            
+            h2 {
+                font-size: 20px !important;
+                border-bottom: 1px solid #eee !important;
+            }
+            
+            h3 {
+                font-size: 18px;
+            }
+            
+            h4 {
+                font-size: 16px;
+            }
+            
+            table {
+                padding: 0;
+                border-collapse: collapse;
+                border-spacing: 0;
+                font-size: 1em;
+                font: inherit;
+                border: 0;
+                margin: 0 auto;
+            }
+            
+            tbody {
+                margin: 0;
+                padding: 0;
+                border: 0;
+            }
+            
+            table tr {
+                border: 0;
+                border-top: 1px solid #CCC;
+                background-color: white;
+                margin: 0;
+                padding: 0;
+            }
+            
+            table tr:nth-child(2n) {
+                background-color: #F8F8F8;
+            }
+            
+            table tr th,
+            table tr td {
+                font-size: 16px;
+                border: 1px solid #CCC;
+                margin: 0;
+                padding: 5px 10px;
+            }
+            
+            table tr th {
+                font-weight: bold;
+                color: #eee;
+                border: 1px solid #009688;
+                background-color: #009688;
+            }
+        </style> -->
+        <link rel="stylesheet" href="test.css" />
+        <style>
+            #area>table {
+                width: 100%;
+                table-layout: fixed;
+            }
+            
+            #area table tr td {
+                margin: 0;
+                padding: 6px;
+                border: 0;
+            }
+            
+            #md-area {
+                width: 100%;
+                height: 600px;
+                font-size: 18px;
+                overflow: hidden;
+                font-weight: bold;
+                outline: none;
+            }
+            
+            #show-area {
+                height: 600px;
+                background-color: #FCF6E5;
+            }
+            
+            .clearfix:before {
+                content: "";
+                display: table;
+            }
+        </style>
+        <script src="node_modules/showdown/dist/showdown.min.js"></script>
+        <script>
+            function mdSwitch() {
+                var mdValue = document.getElementById("md-area").value;
+                var converter = new showdown.Converter();
+                var html = converter.makeHtml(mdValue);
+                document.getElementById("show-area").innerHTML = html;
+            }
+        </script>
+        <div id="area">
+            <table>
+                <tr>
+                    <td><textarea name="" id="md-area" onkeyup=mdSwitch()></textarea></td>
+                    <td>
+                        <div id="show-area" class="clearfix"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </body>
+
+    </html>

@@ -168,13 +168,10 @@
                                     "path": cloudpath + filename + "/"
                                 });
 
-                                console.log(newNodeid)
-                                newNode = ref.get_node(newNodeid)
                                 ipc.send("upload", {
                                     localpath: filepath,
                                     cloudpath: cloudpath,
-                                    filename: filename,
-                                    treenode: newNode
+                                    filename: filename
                                 })
                             } else {
                                 console.log("upload canceled")
@@ -439,7 +436,6 @@
                     #show-area {
                         height: 600px;
                         background-color: #FCF6E5;
-                        overflow: auto;
                     }
                     
                     .clearfix:before {
@@ -451,23 +447,22 @@
                 <script>
                     // 更新显示的MD数据
                     ipc.on("update shown", (event, data) => {
-                        console.log(data)
                         var converter = new showdown.Converter();
                         var html = converter.makeHtml(data);
                         document.getElementById("show-area").innerHTML = html;
                     })
 
-                    // function mdSwitch() {
-                    //     var mdValue = document.getElementById("md-area").value;
-                    //     var converter = new showdown.Converter();
-                    //     var html = converter.makeHtml(mdValue);
-                    //     document.getElementById("show-area").innerHTML = html;
-                    // }
+                    function mdSwitch() {
+                        var mdValue = document.getElementById("md-area").value;
+                        var converter = new showdown.Converter();
+                        var html = converter.makeHtml(mdValue);
+                        document.getElementById("show-area").innerHTML = html;
+                    }
                 </script>
                 <div id="area">
                     <table>
                         <tr>
-                            <!-- <td><textarea name="" id="md-area" onkeyup=mdSwitch()></textarea></td> -->
+                            <td><textarea name="" id="md-area" onkeyup=mdSwitch()></textarea></td>
                             <td>
                                 <div id="show-area" class="clearfix"></div>
                             </td>

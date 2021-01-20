@@ -439,12 +439,12 @@
                     #show-area {
                         height: 600px;
                         background-color: #FCF6E5;
-                        overflow: auto;
                     }
                     
                     .clearfix:before {
                         content: "";
                         display: table;
+                        overflow: auto;
                     }
                 </style>
                 <script src="node_modules/showdown/dist/showdown.min.js"></script>
@@ -457,17 +457,17 @@
                         document.getElementById("show-area").innerHTML = html;
                     })
 
-                    // function mdSwitch() {
-                    //     var mdValue = document.getElementById("md-area").value;
-                    //     var converter = new showdown.Converter();
-                    //     var html = converter.makeHtml(mdValue);
-                    //     document.getElementById("show-area").innerHTML = html;
-                    // }
+                    function mdSwitch() {
+                        var mdValue = document.getElementById("md-area").value;
+                        var converter = new showdown.Converter();
+                        var html = converter.makeHtml(mdValue);
+                        document.getElementById("show-area").innerHTML = html;
+                    }
                 </script>
                 <div id="area">
                     <table>
                         <tr>
-                            <!-- <td><textarea name="" id="md-area" onkeyup=mdSwitch()></textarea></td> -->
+                            <td><textarea name="" id="md-area" onkeyup=mdSwitch()></textarea></td>
                             <td>
                                 <div id="show-area" class="clearfix"></div>
                             </td>
