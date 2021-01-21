@@ -1,15 +1,14 @@
-var db=require('./runtime/db.json')
-
 var auth=function(user,passwd)
 {
-    var userFound=db.user.filter(function(item)
+    const mainDB=require("better-sqlite3")("runtime/MDSync.db");
+    var query=mainDB.prepare('select passwd from user where name=?');
+    var result=query.all(user);
+    var ret=false;
+    for (i in result)
     {
-        return item.name==user;
-    })
-    var boolBack;
-    if (userFound[0].passwd==passwd)
-        return Promise.resolve("success!");
-    else return Promise.reject("Failed!");
+        if (i.passwd==passwd) ret=true;
+    }
+    return ret;
 }
 
 exports.auth=auth;

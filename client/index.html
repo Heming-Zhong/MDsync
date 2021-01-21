@@ -50,13 +50,13 @@
                     } else {
                         if (response.status) {
                             alert("登陆成功")
-                            ipc.send("loginsuccess", response.uuid)
+                            //ipc.send("loginsuccess", response.uuid)
                         } else {
                             console.log("#debug login error")
                             alert("登陆失败")
                         }
                     }
-                    ipc.send("loginsuccess", 0)
+                    //ipc.send("loginsuccess", 0)
                         // console.log(response)
                 }
 

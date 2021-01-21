@@ -39,6 +39,7 @@ message request
     string uuid=1;
     operation op=2;
     string address=3;   //should be absolute (start with /)
+    string extra=4;
 };
 
 message response

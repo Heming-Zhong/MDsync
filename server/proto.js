@@ -13,6 +13,6 @@ const packageDefinition=protoLoader.loadSync(PROTO_PATH,
     });
 const protoDescriptor=grpc.loadPackageDefinition(packageDefinition);
 
-const proto=protoDescriptor.msg;
+const proto=protoDescriptor.mdsyncMsg;
 
 module.exports=proto;
