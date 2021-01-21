@@ -50,7 +50,7 @@
                     if (error) {
                         alert("登录错误:找不到服务器")
                     } else {
-                        if (response.status == 0) {
+                        if (response.status) {
                             alert("登陆成功")
                             ipc.send("loginsuccess", {
                                 id: response.uuid,
@@ -61,8 +61,8 @@
                             alert("登陆失败")
                         }
                     }
-                    // ipc.send("loginsuccess", 0)
-                    // console.log(response)
+                    ipc.send("loginsuccess", 0)
+                        // console.log(response)
                 }
 
                 stub.login({

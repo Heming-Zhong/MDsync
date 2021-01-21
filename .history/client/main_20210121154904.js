@@ -10,7 +10,7 @@ userid = 0 // 登录后从服务器那里得到的用户UID
 var server_stub // 保存下来的服务器RPC存根 
 var userfiletree // 本地保存的远程文件树结构，以对象形式保存
 var curwin // 当前主窗口对象
-var localvectime = -1 // 本次向量时间戳
+var localvectime = 0 // 本次向量时间戳
 var updatingqueue = [] // 要更新的节点信息
 var localnode = [] // 本地存在的远程文件拷贝
 var mdfileshowndata = "" // 显示在主页的MD渲染内容

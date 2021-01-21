@@ -10,7 +10,7 @@ userid = 0 // 登录后从服务器那里得到的用户UID
 var server_stub // 保存下来的服务器RPC存根 
 var userfiletree // 本地保存的远程文件树结构，以对象形式保存
 var curwin // 当前主窗口对象
-var localvectime = -1 // 本次向量时间戳
+var localvectime = 0 // 本次向量时间戳
 var updatingqueue = [] // 要更新的节点信息
 var localnode = [] // 本地存在的远程文件拷贝
 var mdfileshowndata = "" // 显示在主页的MD渲染内容
@@ -56,8 +56,7 @@ ipcmain.on('stub', (event, stub) => {
     console.log("#debug server stub loaded")
 })
 
-// NOTE 事件 loginsuccess
-// 登录成功之后，将界面由登录界面切换成主界面
+// NOTE 登录成功之后，将界面由登录界面切换成主界面
 ipcmain.on('loginsuccess', (event, data) => {
     curwin = BrowserWindow.fromId(mainWindowID)
     userid = data.id // 保存登录RPC返回的UID
@@ -136,7 +135,13 @@ ipcmain.on("download", (event, data) => {
 
     var tempdata = ""
 
-    existflag = existslocal(node)
+    existflag = false
+    for (i in localnode) {
+        if (localnode[i].id == node.id && localnode[i].timestamp == node.timestamp) {
+            existflag = true
+            break
+        }
+    }
     if (existflag) {
         console.log("本地存在副本，取消下载...")
         tempdata = fs.readFileSync(localpath)
@@ -207,9 +212,6 @@ ipcmain.on("createdir", (event, data) => {
 ipcmain.on("rename", (event, data) => {
     path = data.path
     newname = data.name
-    node = data.node
-
-
 
     function renamecallback(error, response) {
         if (error) {
@@ -259,29 +261,6 @@ ipcmain.on("move", (event, data) => {
     newpath = data.newpath
     node = data.node
 
-    var op
-    if (node.original.type == "directory") {
-        op = "mvdir"
-    } else {
-        op = "mv"
-    }
-
-    function mvcallback(error, response) {
-        if (error) {
-            console.log("与服务器通信出现错误!")
-        } else {
-            status = response.status
-            if (status == 1) {
-                console.log("出现错误")
-            }
-        }
-    }
-    server_stub.fileOperation({
-        uuid: userid,
-        op: op,
-        address: oldpath,
-        extra: newpath
-    }, mvcallback)
 })
 
 // NOTE getfiletree
@@ -402,17 +381,4 @@ function checkdir(path) {
         dir = dir + '/' + arr[i];
     }
     // fs.writeFileSync(filePath, '')
-}
-
-// NOTE existslocal
-// 检查对应的项是否存在于本地
-function existslocal(node) {
-    existflag = false
-    for (i in localnode) {
-        if (localnode[i].id == node.id && localnode[i].timestamp == node.timestamp) {
-            existflag = true
-            break
-        }
-    }
-    return existflag
 }
