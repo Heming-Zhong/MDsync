@@ -54,69 +54,66 @@
             $(function() {
 
                 $('#jstree1').jstree({
-                        "core": {
-                            "data": [{
-                                "id": "1",
-                                "parent": "#",
-                                "state": {
-                                    "disabled": false,
-                                    "opened": true,
-                                    "selected": false
-                                },
-                                "text": "夏宇信息",
-                                "timestamp": 0,
-                                "type": "directory",
-                                "path": "/",
-                            }, {
-                                "id": "69",
-                                "parent": "1",
-                                "text": "工程.pdf",
-                                "timestamp": 0,
-                                "type": "other",
-                                "path": "夏宇信息/"
-                            }, {
-                                "id": "5",
-                                "parent": "1",
-                                "text": "行政",
-                                "timestamp": 0,
-                                "type": "directory",
-                                "path": "夏宇信息/"
-                            }, {
-                                "id": "71",
-                                "parent": "1",
-                                "text": "迷",
-                                "timestamp": 0,
-                                "type": "directory"
-                            }, {
-                                "id": "1",
-                                "parent": "0",
-                                "text": "技术",
-                                "timestamp": 0,
-                                "type": "directory",
-                                "path": "夏宇信息/"
-                            }],
-                            "themes": {
-                                "variant": "large", //加大
-                                "ellipsis": false
+                    "core": {
+                        "data": [{
+                            "id": "1",
+                            "parent": "#",
+                            "state": {
+                                "disabled": false,
+                                "opened": true,
+                                "selected": false
                             },
-                            "check_callback": function(op, node, parent, position, more) {
-                                op // 当前操作
-                                if (op == 'move_node') { //当进行拖拽时
-                                    // 新的父节点必须是目录
-                                    if (parent.original.type == 'directory') {
-                                        return true;　　　　
-                                    } else {　　　　　　
-                                        return false;　　　　
-                                    }　　
-                                }
-                                return true
-                            },
+                            "text": "夏宇信息",
+                            "timestamp": 0,
+                            "type": "directory",
+                            "path": "/",
+                        }, {
+                            "id": "69",
+                            "parent": "1",
+                            "text": "工程.pdf",
+                            "timestamp": 0,
+                            "type": "other",
+                            "path": "夏宇信息/"
+                        }, {
+                            "id": "5",
+                            "parent": "1",
+                            "text": "行政",
+                            "timestamp": 0,
+                            "type": "directory",
+                            "path": "夏宇信息/"
+                        }, {
+                            "id": "71",
+                            "parent": "1",
+                            "text": "迷",
+                            "timestamp": 0,
+                            "type": "directory"
+                        }, {
+                            "id": "1",
+                            "parent": "0",
+                            "text": "技术",
+                            "timestamp": 0,
+                            "type": "directory",
+                            "path": "夏宇信息/"
+                        }],
+                        "themes": {
+                            "variant": "large", //加大
+                            "ellipsis": false
                         },
-                        "plugins": ["contextmenu", "dnd"],
-                    })
-                    // NOTE select a node
-
-                .on('select_node.jstree', function(event, data) {
+                        "check_callback": function(op, node, parent, position, more) {
+                            op // 当前操作
+                            if (op == 'move_node') { //当进行拖拽时
+                                // 新的父节点必须是目录
+                                if (parent.original.type == 'directory') {
+                                    return true;　　　　
+                                } else {　　　　　　
+                                    return false;　　　　
+                                }　　
+                            }
+                            return true
+                        },
+                    },
+                    "plugins": ["contextmenu", "dnd"],
+                }).on('select_node.jstree', function(event, data) {
                     var ref = $('#jstree1').jstree(true);
                     // var _l = data.node.li_attr;
                     console.log(data.node.original.type);
@@ -130,17 +127,11 @@
                     } else {
                         // 说明是目录，什么也不做
                     }
-                })
-
-                // tree change
-                .on('changed.jstree', function(event, data) {
+                }).on('changed.jstree', function(event, data) {
                     console.log("-----------changed.jstree");
                     console.log("action:" + data.action);
                     console.log(data.node);
-                })
-
-                // NOTE move_node
-                .on('move_node.jstree', function(event, data) {
+                }).on('move_node.jstree', function(event, data) {
                     var ref = $('#jstree1').jstree(true)
                     parent = data.parent
                     node = data.node
@@ -158,7 +149,6 @@
 
             });
 
-            // NOTE upload
             // 文件上传触发器
             function upload() {
                 ref = $('#jstree1').jstree(true)
@@ -223,7 +213,6 @@
                 }
             }
 
-            // NOTE _download
             // 文件下载触发器
             function _download(node, path) {
                 ipc.send("download", {
@@ -233,7 +222,6 @@
                 })
             }
 
-            // NOTE createdir
             // 创建目录(mkdir)触发器
             function createdir() {
                 var ref = $('#jstree1').jstree(true);
@@ -322,7 +310,6 @@
             //     }
             // }
 
-            // NOTE rename
             // 项目重命名触发器
             function rename() {
                 var ref = $('#jstree1').jstree(true);
@@ -366,7 +353,6 @@
                 }
             }
 
-            // NOTE del
             // 文件和目录删除触发器
             function del() {
                 var ref = $('#jstree1').jstree(true);
@@ -422,8 +408,9 @@
                 ref.move_node(currNode, nextNode, 'after');
             }
 
-            // NOTE _getCurrNode
-            // 获取当前所选中的结点
+            /**
+             *    获取当前所选中的结点
+             */
             function _getCurrNode() {
                 var ref = $('#jstree1').jstree(true),
                     sel = ref.get_selected();

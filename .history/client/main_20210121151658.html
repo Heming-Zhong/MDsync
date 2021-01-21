@@ -134,27 +134,26 @@
 
                 // tree change
                 .on('changed.jstree', function(event, data) {
-                    console.log("-----------changed.jstree");
-                    console.log("action:" + data.action);
-                    console.log(data.node);
-                })
-
-                // NOTE move_node
-                .on('move_node.jstree', function(event, data) {
-                    var ref = $('#jstree1').jstree(true)
-                    parent = data.parent
-                    node = data.node
-                    totalpath = ref.get_path(node, '/')
-                    destpath = totalpath.substr(0, totalpath.length - node.text.length)
-                    console.log(destpath)
-                    ipc.send('move', {
-                        oldpath: node.path,
-                        newpath: destpath,
-                        node: node
+                        console.log("-----------changed.jstree");
+                        console.log("action:" + data.action);
+                        console.log(data.node);
                     })
-                    console.log(parent)
-                    console.log(node)
-                });
+                    // NOTE move_node
+                    .on('move_node.jstree', function(event, data) {
+                        var ref = $('#jstree1').jstree(true)
+                        parent = data.parent
+                        node = data.node
+                        totalpath = ref.get_path(node, '/')
+                        destpath = totalpath.substr(0, totalpath.length - node.text.length)
+                        console.log(destpath)
+                        ipc.send('move', {
+                            oldpath: node.path,
+                            newpath: destpath,
+                            node: node
+                        })
+                        console.log(parent)
+                        console.log(node)
+                    });
 
             });
 

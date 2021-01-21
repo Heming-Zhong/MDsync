@@ -49,8 +49,7 @@ app.on('activate', () => {
     }
 })
 
-// NOTE 事件 stub
-// 将index.html中已有的RPC stub传到主进程保存
+// NOTE 将index.html中已有的RPC stub传到主进程保存
 ipcmain.on('stub', (event, stub) => {
     server_stub = stub
     console.log("#debug server stub loaded")
@@ -67,8 +66,7 @@ ipcmain.on('loginsuccess', (event, data) => {
         // curwin.webContents.openDevTools()
 })
 
-// NOTE 事件 upload
-// 将新加入的本地文件上传到在线数据库的指定位置
+// NOTE 将新加入的本地文件上传到在线数据库的指定位置
 ipcmain.on("upload", function(event, data) {
     var localpath = data.localpath
     var clouddic = data.cloudpath
@@ -124,8 +122,7 @@ ipcmain.on("upload", function(event, data) {
     server_stub.uploadReq(request, uploadcallback)
 })
 
-// NOTE 事件 download
-// 将不存在于本地的文件下载到本地
+// NOTE 将不存在于本地的文件下载到本地
 ipcmain.on("download", (event, data) => {
     path = data.path
     node = data.node
@@ -188,8 +185,7 @@ ipcmain.on("download", (event, data) => {
 
 })
 
-// NOTE 事件 createdir
-// 发送创建目录的消息到服务器
+// NOTE 发送创建目录的消息到服务器
 ipcmain.on("createdir", (event, data) => {
 
     function mkdircallback(error, response) {
@@ -207,8 +203,6 @@ ipcmain.on("createdir", (event, data) => {
     server_stub.fileOperation({ uuid: userid, op: op, address: address, extra: "" }, mkdircallback)
 })
 
-// NOTE 事件 rename
-// 向服务器请求对文件或目录的重命名
 ipcmain.on("rename", (event, data) => {
     path = data.path
     newname = data.name
@@ -232,7 +226,6 @@ ipcmain.on("rename", (event, data) => {
     server_stub.fileOperation(request, renamecallback)
 })
 
-// NOTE 事件 rm
 // 向服务器请求执行删除操作
 ipcmain.on("rm", (event, data) => {
     path = data.path
@@ -254,8 +247,6 @@ ipcmain.on("rm", (event, data) => {
     }, rmcallback)
 })
 
-// NOTE 事件 move
-// 移动文件和目录
 ipcmain.on("move", (event, data) => {
     oldpath = data.oldpath
 })
