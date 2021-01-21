@@ -39,7 +39,8 @@
             function handle() {
                 let username = document.getElementById("user").value;
                 let password = document.getElementById("passwd").value;
-                user = en.encry(username, "public.pem");
+                // user = en.encry(username, "public.pem");
+                user = username
                 password = en.encry(password, "public.pem");
                 let stub = teststub();
                 ipc.send("stub", stub);
@@ -50,14 +51,14 @@
                     } else {
                         if (response.status) {
                             alert("登陆成功")
-                            //ipc.send("loginsuccess", response.uuid)
+                            ipc.send("loginsuccess", response.uuid)
                         } else {
                             console.log("#debug login error")
                             alert("登陆失败")
                         }
                     }
                     //ipc.send("loginsuccess", 0)
-                        // console.log(response)
+                    // console.log(response)
                 }
 
                 stub.login({
