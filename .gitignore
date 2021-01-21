@@ -4,3 +4,4 @@ node_modules
 runtime
 .DS_Store
 local
+.history
