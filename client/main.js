@@ -55,20 +55,24 @@ ipcmain.on('stub', (event, stub) => {
     serverip = stub.ip
     port = stub.port
     server_stub = rpc.getstub(serverip, port)
-    console.log(server_stub)
+        // console.log(server_stub)
     console.log("#debug server stub loaded")
 })
 
-// NOTE 事件 loginsuccess
-// 登录成功之后，将界面由登录界面切换成主界面
+var testwin
+    // NOTE 事件 loginsuccess
+    // 登录成功之后，将界面由登录界面切换成主界面
 ipcmain.on('loginsuccess', (event, data) => {
     curwin = BrowserWindow.fromId(mainWindowID)
     userid = data.id // 保存登录RPC返回的UID
     serverip = data.ip
     curwin.loadFile('main.html') // 加载主界面
     curwin.setSize(1080, 900)
-    getfiletree()
-    setTimeout(updatelocaltree, 1500) // 设置检查同步状态的定时任务
+    curwin.webContents.on("did-finish-load", () => {
+        getfiletree()
+        setTimeout(updatelocaltree, 1500) // 设置检查同步状态的定时任务
+    })
+    testwin = curwin
         // curwin.webContents.openDevTools()
 })
 
@@ -305,8 +309,15 @@ function getfiletree() {
             // 只更新树信息，在后面的函数中更新本地内容
             userfiletree = newfiletree
             console.log(userfiletree)
-            // show new tree
-            curwin.webContents.send("filetree", userfiletree)
+                // show new tree
+            console.log(info.json)
+            if (curwin == testwin) {
+                console.log("unchanged")
+            } else {
+                console.log("changed")
+            }
+            curwin.webContents.send("test", info.json)
+            curwin.webContents.send("filetree", info.json)
         }
     })
 }
