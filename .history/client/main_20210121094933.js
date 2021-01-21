@@ -123,19 +123,12 @@ ipcmain.on("download", (event, data) => {
     path = data.path
     node = data.node
     var filename = data.name
-    var localpath = localdata + path
+    var localpath = localdata + path + filename
     request = { uuid: userid, op: "downloadReq", address: path }
 
     var tempdata = ""
 
-    existflag = false
-    for (i in localnode) {
-        if (localnode[i].id == node.id && localnode[i].timestamp == node.timestamp) {
-            existflag = true
-            break
-        }
-    }
-    if (existflag) {
+    if (localnode.includes(node)) {
         console.log("本地存在副本，取消下载...")
         tempdata = fs.readFileSync(localpath)
         arr = filename.split('.')
@@ -164,7 +157,7 @@ ipcmain.on("download", (event, data) => {
                 arr = filename.split('.')
                 postfix = arr[arr.length - 1]
                 if (postfix == 'md') {
-                    mdfileshowndata = tempdata.toString("utf8")
+                    mdfileshowndata = tempdata
                     curwin.webContents.send("update shown", mdfileshowndata)
                 }
                 console.log("下载成功")

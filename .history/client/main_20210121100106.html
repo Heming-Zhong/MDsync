@@ -108,6 +108,7 @@
                     console.log(data.node.original.type);
                     // 叶节点同时类型不是dir，说明是文件
                     if (ref.is_leaf(data.node) && data.node.original.type != 'dir') {
+                        // TO-DO：获取文件内容
                         path = ref.get_path(data.node, '/')
                         console.log(path)
 
@@ -450,6 +451,7 @@
                 <script>
                     // 更新显示的MD数据
                     ipc.on("update shown", (event, data) => {
+                        console.log(data)
                         var converter = new showdown.Converter();
                         var html = converter.makeHtml(data);
                         document.getElementById("show-area").innerHTML = html;

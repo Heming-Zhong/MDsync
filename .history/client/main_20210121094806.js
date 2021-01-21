@@ -123,19 +123,12 @@ ipcmain.on("download", (event, data) => {
     path = data.path
     node = data.node
     var filename = data.name
-    var localpath = localdata + path
+    var localpath = localdata + path + filename
     request = { uuid: userid, op: "downloadReq", address: path }
 
     var tempdata = ""
 
-    existflag = false
-    for (i in localnode) {
-        if (localnode[i].id == node.id && localnode[i].timestamp == node.timestamp) {
-            existflag = true
-            break
-        }
-    }
-    if (existflag) {
+    if (localnode.includes(node)) {
         console.log("本地存在副本，取消下载...")
         tempdata = fs.readFileSync(localpath)
         arr = filename.split('.')
@@ -144,36 +137,35 @@ ipcmain.on("download", (event, data) => {
             mdfileshowndata = tempdata.toString("utf8")
             curwin.webContents.send("update shown", mdfileshowndata)
         }
-    } else {
-        function downloadcallback(error, socketinfo) {
-            if (error) {
-                console.log("下载出现错误!")
-            } else {
-                ip = socketinfo.ip
-                port = socketinfo.port
-                stat = socketinfo.status
-                let client = new net.Socket()
-                client.connect(port, ip)
-                client.setEncoding('utf8')
-                client.on("data", function(data) {
-                    console.log(data)
-                    checkdir(localpath - filename)
-                    fs.writeFileSync(localpath, data)
-                    tempdata += data
-                })
-                arr = filename.split('.')
-                postfix = arr[arr.length - 1]
-                if (postfix == 'md') {
-                    mdfileshowndata = tempdata.toString("utf8")
-                    curwin.webContents.send("update shown", mdfileshowndata)
-                }
-                console.log("下载成功")
-                localnode.push(node) // 本地只记录文件节点的信息，即叶节点
-            }
-        }
-        server_stub.downloadReq(request, downloadcallback)
     }
 
+    function downloadcallback(error, socketinfo) {
+        if (error) {
+            console.log("下载出现错误!")
+        } else {
+            ip = socketinfo.ip
+            port = socketinfo.port
+            stat = socketinfo.status
+            let client = new net.Socket()
+            client.connect(port, ip)
+            client.setEncoding('utf8')
+            client.on("data", function(data) {
+                console.log(data)
+                checkdir(localpath - filename)
+                fs.writeFileSync(localpath, data)
+                tempdata += data
+            })
+            arr = filename.split('.')
+            postfix = arr[arr.length - 1]
+            if (postfix == 'md') {
+                mdfileshowndata = tempdata
+                curwin.webContents.send("update shown", mdfileshowndata)
+            }
+            console.log("下载成功")
+            localnode.push(node) // 本地只记录文件节点的信息，即叶节点
+        }
+    }
+    server_stub.downloadReq(request, downloadcallback)
 })
 
 // 发送创建目录的消息到服务器

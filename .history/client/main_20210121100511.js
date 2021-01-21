@@ -164,7 +164,7 @@ ipcmain.on("download", (event, data) => {
                 arr = filename.split('.')
                 postfix = arr[arr.length - 1]
                 if (postfix == 'md') {
-                    mdfileshowndata = tempdata.toString("utf8")
+                    mdfileshowndata = tempdata
                     curwin.webContents.send("update shown", mdfileshowndata)
                 }
                 console.log("下载成功")
