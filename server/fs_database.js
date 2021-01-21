@@ -18,8 +18,9 @@ function probeDB(username)
 {
     const fs=require("fs-extra");
     const path=require("path");
-    var dir="runtime/file/"+username+"/.info.db";
+    var dir="runtime/files/"+username+"/.info.db";
     dir=path.join(__dirname,dir);
+    console.log(dir);
     var db;
     if (!fs.existsSync(dir))//not exist
     {
@@ -40,7 +41,7 @@ var parsePath=function(username,path)//only parse dir!
     var id=db.prepare("select id from file where path=? and type='dir'").all(path);
     if (id.length==0) return wrongPath;
     id=id[0].id;
-    var list=db.prepare("select name,type form file where parent=?").all(id);
+    var list=db.prepare("select name,type from file where parent=?").all(id);
     return list;
 }
 var parseFile=function(username,path)//only parse file!
@@ -67,7 +68,7 @@ var deleteNode=function(username,path,type)
         tmp=node.all(tmp);
         for (i in tmp)
         {
-            nodeQueue.push(i.id);
+            nodeQueue.push(tmp[i].id);
         }
     }
 
@@ -150,16 +151,16 @@ function genTree(user)
     var db=probeDB(user);
     var ret=[];
 
-    var array=db.prepare("select * form file").all();
+    var array=db.prepare("select * from file").all();
     for (i in array)
     {
         ret.push({
-            id:i.id.toString(),
-            parent:(i.parent==0)?"#":i.parent.toString(),
-            text:i.name,
-            timestamp:i.timestamp,
-            type:i.type,
-            path:i.path,
+            id:array[i].id.toString(),
+            parent:(array[i].parent==0)?"#":array[i].parent.toString(),
+            text:array[i].name,
+            timestamp:array[i].timestamp,
+            type:array[i].type,
+            path:array[i].path,
         });
     }
     return JSON.stringify(ret);

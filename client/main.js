@@ -52,7 +52,10 @@ app.on('activate', () => {
 // NOTE 事件 stub
 // 将index.html中已有的RPC stub传到主进程保存
 ipcmain.on('stub', (event, stub) => {
-    server_stub = stub
+    serverip = stub.ip
+    port = stub.port
+    server_stub = rpc.getstub(serverip, port)
+    console.log(server_stub)
     console.log("#debug server stub loaded")
 })
 
@@ -64,6 +67,7 @@ ipcmain.on('loginsuccess', (event, data) => {
     serverip = data.ip
     curwin.loadFile('main.html') // 加载主界面
     curwin.setSize(1080, 900)
+    getfiletree()
     setTimeout(updatelocaltree, 1500) // 设置检查同步状态的定时任务
         // curwin.webContents.openDevTools()
 })
@@ -109,7 +113,7 @@ ipcmain.on("upload", function(event, data) {
             client.end()
             localnode.push(filenode)
             if (postfix == 'md') {
-                mdfileshowndata = tempdata
+                mdfileshowndata = filecontent.toString('utf8')
                 curwin.webContents.send("update shown", mdfileshowndata)
             }
         }
@@ -122,7 +126,7 @@ ipcmain.on("upload", function(event, data) {
         mdfileshowndata = filecontent.toString("utf8")
         curwin.webContents.send("update shown", mdfileshowndata)
     }
-    server_stub.uploadReq(request, uploadcallback)
+    server_stub.newFileReq(request, uploadcallback)
 })
 
 // NOTE 事件 download
@@ -296,11 +300,11 @@ function getfiletree() {
         if (error) {
             console.log("get file info error")
         } else { // 得到新的树，并且和旧的本地树比较，并记录不同之处
-            newfiletree = JSON.parse(info)
+            newfiletree = JSON.parse(info.json)
 
             // 只更新树信息，在后面的函数中更新本地内容
             userfiletree = newfiletree
-
+            console.log(userfiletree)
             // show new tree
             curwin.webContents.send("filetree", userfiletree)
         }
@@ -372,14 +376,16 @@ function checkupdate() {
             op: "getTree",
             address: "timestamp",
             extra: ""
-        }),
+        },
         function(error, time) {
             if (localvectime < time) {
+                console.log("out of date... updating")
+                console.log(localvectime)
                 getfiletree() // update local tree
                 updatefiles()
                 localvectime = time
             } else {} // do nothing
-        }
+        })
 }
 
 

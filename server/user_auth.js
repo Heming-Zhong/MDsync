@@ -1,3 +1,5 @@
+const chalk=require('chalk');
+
 var auth=function(user,passwd)
 {
     const mainDB=require("better-sqlite3")("runtime/MDSync.db");
@@ -6,7 +8,12 @@ var auth=function(user,passwd)
     var ret=false;
     for (i in result)
     {
-        if (i.passwd==passwd) ret=true;
+        if (result[i].passwd==passwd) ret=true;
+        if (!ret)
+        {
+            console.log(chalk.redBright('[server] login failed, input is '+passwd));
+            console.log(chalk.redBright('[server] login failed, store is '+i.passwd));
+        }
     }
     return ret;
 }

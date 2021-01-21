@@ -41,24 +41,28 @@
                 let password = document.getElementById("passwd").value;
                 // user = en.encry(username, "public.pem");
                 user = username
-                password = en.encry(password, "public.pem");
+                var ip = document.getElementById('ip').value;
+                var port = document.getElementById('port').value;
+                // console.log(password)
+                // password = en.encry(password, "public.pem");
                 let stub = teststub();
-                ipc.send("stub", stub);
+                console.log(stub)
+                ipc.send("stub", {ip: ip, port: port});
 
                 function logincallback(error, response) {
                     if (error) {
                         alert("登录错误:找不到服务器")
                     } else {
+                        console.log(response)
                         if (response.status == 0) {
                             alert("登陆成功")
-                            ipc.send("loginsuccess", response.uuid)
+                            ipc.send("loginsuccess", {id:response.uuid, ip:ip})
                         } else {
                             console.log("#debug login error")
                             alert("登陆失败")
                         }
                     }
                     //ipc.send("loginsuccess", 0)
-                    // console.log(response)
                 }
 
                 stub.login({

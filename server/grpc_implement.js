@@ -45,13 +45,13 @@ exports.setServerTime=setServerTime;
 var login=function(call,callback)
 {
     var loginInfo=call.request;
-    chalk.blueBright('[server] user '+loginInfo.name+' try to login');
+    console.log(chalk.blueBright('[server] user '+loginInfo.name+' try to login'));
     var ret;
     var result=auth.auth(loginInfo.name,loginInfo.passwd);
     if (result)
     {
         ret={
-            status:1,
+            status:0,
             uuid:uuidv4()
         }
         userMap.set(ret.uuid,{ username:loginInfo.name,TTL:30 });
