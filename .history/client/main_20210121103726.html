@@ -135,13 +135,11 @@
                     var ref = $('#jstree1').jstree(true)
                     parent = data.parent
                     node = data.node
-                    totalpath = ref.get_path(node, '/')
-                    destpath = totalpath.substr(0, totalpath.length - node.text.length)
+                    destpath = ref.get_path(node, '/') - node.text
                     console.log(destpath)
                     ipc.send('move', {
                         oldpath: node.path,
-                        newpath: destpath,
-                        node: node
+                        newpath: destpath
                     })
                     console.log(parent)
                     console.log(node)
@@ -181,16 +179,10 @@
                                 var timestamp = ref.get_node(0).original.timestamp
                                 arr = filename.split('.')
                                 postfix = arr[arr.length - 1]
-                                type = "other"
-                                if (postfix == "md") {
-                                    type = "markdown"
-                                } else {
-                                    type = "other"
-                                }
 
                                 newNodeid = ref.create_node(nodeid, {
                                     "text": filename,
-                                    "type": type,
+                                    "type": "file",
                                     "timestamp": timestamp,
                                     "path": cloudpath
                                 });

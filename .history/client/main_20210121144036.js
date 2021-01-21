@@ -14,7 +14,7 @@ var localvectime = 0 // 本次向量时间戳
 var updatingqueue = [] // 要更新的节点信息
 var localnode = [] // 本地存在的远程文件拷贝
 var mdfileshowndata = "" // 显示在主页的MD渲染内容
-var serverip = "" // 服务器IP地址
+var serverip = ""
 
 // 创建主窗口
 function createWindow() {
@@ -56,10 +56,9 @@ ipcmain.on('stub', (event, stub) => {
 })
 
 // 登录成功之后，将界面由登录界面切换成主界面
-ipcmain.on('loginsuccess', (event, data) => {
+ipcmain.on('loginsuccess', (event, id) => {
     curwin = BrowserWindow.fromId(mainWindowID)
-    userid = data.id // 保存登录RPC返回的UID
-    serverip = data.ip
+    userid = id // 保存登录RPC返回的UID
     curwin.loadFile('main.html') // 加载主界面
     curwin.setSize(1080, 900)
     setTimeout(updatelocaltree, 1500) // 设置检查同步状态的定时任务
@@ -89,8 +88,7 @@ ipcmain.on("upload", function(event, data) {
         if (error) {
             console.log("发送失败!")
         } else {
-            // ip = socketinfo.ip
-            ip = serverip
+            ip = socketinfo.ip
             port = socketinfo.port
             stat = socketinfo.status
 
@@ -153,8 +151,7 @@ ipcmain.on("download", (event, data) => {
             if (error) {
                 console.log("下载出现错误!")
             } else {
-                // ip = socketinfo.ip
-                ip = serverip
+                ip = socketinfo.ip
                 port = socketinfo.port
                 stat = socketinfo.status
                 let client = new net.Socket()
@@ -338,10 +335,10 @@ function checkupdate() {
             extra: ""
         }),
         function(error, time) {
+            localvectime = time
             if (localvectime < time) {
                 getfiletree() // update local tree
                 updatefiles()
-                localvectime = time
             } else {} // do nothing
         }
 }

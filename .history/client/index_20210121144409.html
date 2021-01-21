@@ -25,6 +25,7 @@
             function teststub() {
                 ip = document.getElementById("ip").value;
                 port = document.getElementById("port").value;
+                global.serverip = ip
                 console.log("send success")
                 stub = rpc.getstub(ip, port);
                 return stub
@@ -43,7 +44,6 @@
                 password = en.encry(password, "public.pem");
                 let stub = teststub();
                 ipc.send("stub", stub);
-                var ip = document.getElementsById("ip").value;
 
                 function logincallback(error, response) {
                     if (error) {
@@ -51,10 +51,7 @@
                     } else {
                         if (response.status) {
                             alert("登陆成功")
-                            ipc.send("loginsuccess", {
-                                id: response.uuid,
-                                ip: ip
-                            })
+                            ipc.send("loginsuccess", response.uuid)
                         } else {
                             console.log("#debug login error")
                             alert("登陆失败")

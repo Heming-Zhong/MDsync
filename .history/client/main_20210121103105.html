@@ -65,34 +65,34 @@
                             },
                             "text": "夏宇信息",
                             "timestamp": 0,
-                            "type": "directory",
+                            "type": "dir",
                             "path": "/",
                         }, {
                             "id": "69",
                             "parent": "0",
                             "text": "工程.pdf",
                             "timestamp": 0,
-                            "type": "other",
+                            "type": "file",
                             "path": "夏宇信息/"
                         }, {
                             "id": "5",
                             "parent": "0",
                             "text": "行政",
                             "timestamp": 0,
-                            "type": "directory",
+                            "type": "dir",
                             "path": "夏宇信息/"
                         }, {
                             "id": "71",
                             "parent": "0",
                             "text": "迷",
                             "timestamp": 0,
-                            "type": "directory"
+                            "type": "dir"
                         }, {
                             "id": "1",
                             "parent": "0",
                             "text": "技术",
                             "timestamp": 0,
-                            "type": "directory",
+                            "type": "dir",
                             "path": "夏宇信息/"
                         }],
                         "themes": {
@@ -101,9 +101,10 @@
                         },
                         "check_callback": function(op, node, parent, position, more) {
                             op // 当前操作
+                            console.log(node)
+                            console.log(parent)
                             if (op == 'move_node') { //当进行拖拽时
-                                // 新的父节点必须是目录
-                                if (parent.original.type == 'directory') {
+                                if (parent.type == 'dir') { //可以对拖拽的节点级别进行判断
                                     return true;　　　　
                                 } else {　　　　　　
                                     return false;　　　　
@@ -118,7 +119,7 @@
                     // var _l = data.node.li_attr;
                     console.log(data.node.original.type);
                     // 叶节点同时类型不是dir，说明是文件
-                    if (ref.is_leaf(data.node) && data.node.original.type != 'directory') {
+                    if (ref.is_leaf(data.node) && data.node.original.type != 'dir') {
                         path = ref.get_path(data.node, '/')
                         console.log(path)
 
@@ -135,13 +136,11 @@
                     var ref = $('#jstree1').jstree(true)
                     parent = data.parent
                     node = data.node
-                    totalpath = ref.get_path(node, '/')
-                    destpath = totalpath.substr(0, totalpath.length - node.text.length)
+                    destpath = ref.get_path(node, '/') - node.text
                     console.log(destpath)
                     ipc.send('move', {
                         oldpath: node.path,
-                        newpath: destpath,
-                        node: node
+                        newpath: destpath
                     })
                     console.log(parent)
                     console.log(node)
@@ -162,7 +161,7 @@
                     node = ref.get_node(nodeid)
                         // console.log(node)
                         // 只有选中非叶节点时才可以上传
-                    if (ref.is_leaf(node) && node.original.type != 'directory') {
+                    if (ref.is_leaf(node) && node.original.type != 'dir') {
                         alert("请选中一个目录！")
                     } else {
                         // 打开选择文件对话框
@@ -179,18 +178,10 @@
                                 console.log(cloudpath)
 
                                 var timestamp = ref.get_node(0).original.timestamp
-                                arr = filename.split('.')
-                                postfix = arr[arr.length - 1]
-                                type = "other"
-                                if (postfix == "md") {
-                                    type = "markdown"
-                                } else {
-                                    type = "other"
-                                }
 
                                 newNodeid = ref.create_node(nodeid, {
                                     "text": filename,
-                                    "type": type,
+                                    "type": "file",
                                     "timestamp": timestamp,
                                     "path": cloudpath
                                 });
@@ -234,7 +225,7 @@
                 } else {
                     curnode = ref.get_node(currNodeid)
                         // not a directory
-                    if (ref.is_leaf(currNodeid) && curnode.original.type != 'directory') {
+                    if (ref.is_leaf(currNodeid) && curnode.original.type != 'dir') {
                         currNodeid = ref.get_parent(currNodeid)
                         curnode = ref.get_node(currNodeid)
                     } else {} // do nothing
@@ -244,7 +235,7 @@
                     var timestamp = ref.get_node(0).original.timestamp
 
                     newNodeid = ref.create_node(currNodeid, {
-                        "type": "directory",
+                        "type": "dir",
                         "timestamp": timestamp,
                         "path": curnode.original.path + curnode.text + '/'
                     });
@@ -276,7 +267,7 @@
             //     curnode = ref.get_node(currNodeid)
 
             //     // not a directory, create in the same level
-            //     if (ref.is_leaf(currNodeid) && curnode.original.type != 'directory') {
+            //     if (ref.is_leaf(currNodeid) && curnode.original.type != 'dir') {
             //         currNodeid = ref.get_parent(currNodeid)
             //         curnode = ref.get_node(currNodeid)
             //     } else {} // do nothing
@@ -364,7 +355,7 @@
                         var currNode = ref.get_node(currNodeid);
                         // rm
                         console.log("starting delete...")
-                        if (ref.is_leaf(currNodeid) && currNode.original.type != 'directory') {
+                        if (ref.is_leaf(currNodeid) && currNode.original.type != 'dir') {
                             console.log("rm...")
                             ipc.send("rm", {
                                 path: currNode.original.path + currNode.text,

@@ -58,6 +58,7 @@ ipcmain.on('stub', (event, stub) => {
 // 登录成功之后，将界面由登录界面切换成主界面
 ipcmain.on('loginsuccess', (event, data) => {
     curwin = BrowserWindow.fromId(mainWindowID)
+    console.log(global.serverip)
     userid = data.id // 保存登录RPC返回的UID
     serverip = data.ip
     curwin.loadFile('main.html') // 加载主界面
@@ -153,8 +154,7 @@ ipcmain.on("download", (event, data) => {
             if (error) {
                 console.log("下载出现错误!")
             } else {
-                // ip = socketinfo.ip
-                ip = serverip
+                ip = socketinfo.ip
                 port = socketinfo.port
                 stat = socketinfo.status
                 let client = new net.Socket()
