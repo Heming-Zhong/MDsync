@@ -49,7 +49,7 @@
                     if (error) {
                         alert("登录错误:找不到服务器")
                     } else {
-                        if (response.status) {
+                        if (response.status == 0) {
                             alert("登陆成功")
                             ipc.send("loginsuccess", response.uuid)
                         } else {
