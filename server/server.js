@@ -8,10 +8,11 @@ const path=require('path');
 function main()
 {
     /* init dir/files */
-    fs.ensureDir(path.join(__dirname,"runtime"));
-    fs.ensureDir(path.join(__dirname,"runtime/file"));
+    fs.ensureDirSync(path.join(__dirname,"runtime"));
+    fs.ensureDirSync(path.join(__dirname,"runtime/file"));
     if (!fs.existsSync(path.join(__dirname,"runtime/conf.json")))
     {
+
         fs.copyFileSync(path.join(__dirname,"conf.json.example"),path.join(__dirname,"runtime/conf.json"));
     }
 
@@ -69,7 +70,7 @@ function main()
         () =>
         {
             server.start()
-            console.log(chalk.blueBright('[server] grpc server started'));
+            console.log(chalk.blueBright('[server] grpc server started on '+config.server.host+':'+config.server.port));
         });
     
     /* other works */
