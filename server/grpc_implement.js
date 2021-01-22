@@ -189,7 +189,7 @@ var fileOperation=function(call,callback)
         //2. rm file
         fs.unlinkSync(filePath);
         //3. rm db
-        if (req.address.substr(req.address.length-3,2)=="md")
+        if (req.address.substr(req.address.length-2,2)=="md")
         {
             fsDB.deleteNode(user,req.address,"markdown");
         }
@@ -234,7 +234,7 @@ var fileOperation=function(call,callback)
         //2. fs op
         fs.moveSync(filePath,__dirname+'/runtime/files/'+user+req.extra);
         //3. DB op
-        if (req.address.substr(req.address.length-3,2)=="md")
+        if (req.address.substr(req.address.length-2,2)=="md")
         {
             fsDB.moveNode(user,req.address,"markdown",req.extra);
         }
@@ -370,7 +370,7 @@ var newFileReq=function(call,callback)
     }
 
     var type="other";
-    if (req.address.substr(req.address.length-3,2)=="md")
+    if (req.address.substr(req.address.length-2,2)=="md")
     {
         type="markdown";
     }
