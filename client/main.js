@@ -4,7 +4,7 @@ const rpc = require('./rpc')
 var fs = require('fs')
 const net = require('net')
 
-localdata = './local/' // 本地的数据根目录
+localdata = './local' // 本地的数据根目录
 mainWindowID = 0 // 主窗口的ID
 userid = 0 // 登录后从服务器那里得到的用户UID
 var server_stub // 保存下来的服务器RPC存根 
@@ -87,13 +87,13 @@ ipcmain.on("upload", function(event, data) {
     // 暂时先不考虑相关资源文件的拷贝，只拷贝目标文件
     // for (var i = 0; i < localpaths.length; i++) {
     checkdir(localdata + clouddic)
-    fs.copyFileSync(localpath, localdata + clouddic + filename)
+    fs.copyFileSync(localpath, localdata + clouddic)
         // }
 
     arr = filename.split('.')
     var postfix = arr[arr.length - 1]
 
-    request = { uuid: userid, op: "newFileReq", address: clouddic + filename, extra: "" }
+    request = { uuid: userid, op: "newFileReq", address: clouddic, extra: "" }
 
     // 上传RPC回调
     function uploadcallback(error, socketinfo) {
@@ -109,10 +109,8 @@ ipcmain.on("upload", function(event, data) {
             let client = new net.Socket()
             client.connect(port, ip)
             client.setEncoding('utf8')
-                // for (i = 0; i < localpaths.length; i++) {
             filecontent = fs.readFileSync(localpath)
             client.write(filecontent)
-                // }
             console.log("发送成功!")
             client.end()
             localnode.push(filenode)
@@ -120,6 +118,7 @@ ipcmain.on("upload", function(event, data) {
                 mdfileshowndata = filecontent.toString('utf8')
                 curwin.webContents.send("update shown", mdfileshowndata)
             }
+            event.returnValue = stat
         }
     }
     filecontent = fs.readFileSync(localpath)
@@ -143,6 +142,7 @@ ipcmain.on("download", (event, data) => {
     request = { uuid: userid, op: "downloadReq", address: path }
 
     var tempdata = ""
+    console.log(localpath)
 
     existflag = existslocal(node)
     if (existflag) {
@@ -152,7 +152,9 @@ ipcmain.on("download", (event, data) => {
             // postfix = arr[arr.length - 1]
         if (node.original.type == 'markdown') {
             mdfileshowndata = tempdata.toString("utf8")
-            curwin.webContents.send("update shown", mdfileshowndata)
+            console.log(mdfileshowndata)
+                // curwin.webContents.send("update shown", mdfileshowndata)
+            event.sender.send("update shown", mdfileshowndata)
         }
     } else {
         function downloadcallback(error, socketinfo) {
@@ -168,11 +170,13 @@ ipcmain.on("download", (event, data) => {
                 client.setEncoding('utf8')
                 client.on("data", function(data) {
                     console.log(data)
-                    checkdir(localpath - filename)
+
+                    checkdir(localpath.substr(0, localpath.length - filename.length))
                     fs.writeFileSync(localpath, data)
                     tempdata += data
                 })
 
+                console.log(tempdata)
                 client.on("end", function() {
                         console.log("socket end")
                     })
@@ -203,6 +207,7 @@ ipcmain.on("createdir", (event, data) => {
             if (status == 0) {
                 console.log("Operation success")
             }
+            event.returnValue = response.uuid
         }
     }
     op = "mkdir"
@@ -400,7 +405,9 @@ function checkupdate() {
                 getfiletree() // update local tree
                 updatefiles()
                 localvectime = time
-            } else {} // do nothing
+            } else {
+                console.log("up to date")
+            } // do nothing
         })
 }
 
@@ -415,6 +422,7 @@ function updatelocaltree() {
 // NOTE checkdir
 // 检查当前路径是否存在，如果不存在，那么就创建
 function checkdir(path) {
+    console.log("checking" + path)
     const arr = path.split('/');
     let dir = arr[0];
     for (let i = 1; i < arr.length; i++) {

@@ -64,6 +64,7 @@ message socketInfo
     int32 status=1;
     string ip=2;
     string port=3;
+    string nodeid=4;
 };
 
 message JSONString

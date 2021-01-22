@@ -100,13 +100,12 @@
                     var ref = $('#jstree1').jstree(true)
                     parent = data.parent
                     node = data.node
-                    oldpath = node.original.path
-                        // totalpath = ref.get_path(node, '/')
+                    oldpath = node.original.path // 旧的目录位置
                     totalpath = parent.original.path
-                    destpath = totalpath.substr(0, totalpath.length - node.text.length)
+                    destpath = totalpath.substr(0, totalpath.length - node.text.length) // 新的目录位置
                     console.log(destpath)
                     ipc.send('move', {
-                        oldpath: node.original.path + node.text,
+                        oldpath: node.original.path,
                         newpath: destpath,
                         node: node
                     })
@@ -243,13 +242,17 @@
                             title: "请选择要上传的文件",
                         }).then(result => {
                             ref = $('#jstree1').jstree(true)
-                            node = _getCurrNode().id
+                                // nodeid = _getCurrNode().id
                             console.log(result)
                             if (!result.canceled) {
                                 filepath = result.filePaths[0]
                                 filename = filepath.substr(filepath.lastIndexOf('/') + 1)
-                                cloudpath = node.original.path + '/' + filename
-                                    // cloudpath = ref.get_path(node, '/') + '/'
+                                var cloudpath
+                                if (node.original.path == '/') {
+                                    cloudpath = node.original.path + filename
+                                } else {
+                                    cloudpath = node.original.path + '/' + filename
+                                }
                                 console.log(cloudpath)
 
                                 var timestamp = ref.get_node(1).original.timestamp
@@ -271,12 +274,15 @@
 
                                 console.log(newNodeid)
                                 newNode = ref.get_node(newNodeid)
-                                ipc.send("upload", {
+                                newid = ipc.sendSync("upload", {
                                     localpath: filepath,
                                     cloudpath: cloudpath,
                                     filename: filename,
                                     treenode: newNode
                                 })
+                                console.log(newid)
+                                ref.set_id(newNode, newid)
+                                    // newNode.id = newid
                             } else {
                                 console.log("upload canceled")
                             }
@@ -319,6 +325,7 @@
                     // 根目录节点ID为1
                     var timestamp = ref.get_node(1).original.timestamp
 
+                    console.log(currNodeid)
                     newNodeid = ref.create_node(currNodeid, {
                         "type": "directory",
                         "timestamp": timestamp,
@@ -335,7 +342,10 @@
                                     node.original.path = curnode.original.path + '/' + node.text
                                 }
                                 // newNode = ref.get_node(newNodeid)
-                                ipc.send("createdir", node.original.path)
+                                newid = ipc.sendSync("createdir", node.original.path)
+                                console.log(newid)
+                                ref.set_id(node, newid)
+                                    // node.id = newid
                             } else {
                                 console.log("edit state error")
                             }
@@ -373,7 +383,7 @@
                                     console.log(node)
                                     if (oldname != node.text) {
                                         ipc.send("rename", {
-                                            path: node.original.path + oldname,
+                                            path: node.original.path,
                                             name: node.text,
                                             node: node
                                         })
@@ -414,13 +424,13 @@
                         if (ref.is_leaf(currNodeid) && currNode.original.type != 'directory') {
                             console.log("rm...")
                             ipc.send("rm", {
-                                path: currNode.original.path + currNode.text,
+                                path: currNode.original.path,
                                 dir: false
                             })
                         } else { // rmdir
                             console.log("rmdir...")
                             ipc.send("rm", {
-                                path: currNode.original.path + currNode.text + '/',
+                                path: currNode.original.path,
                                 dir: true
                             })
                         }
