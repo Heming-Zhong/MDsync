@@ -77,7 +77,8 @@
                     console.log(data.node.original.type);
                     // 叶节点同时类型不是dir，说明是文件
                     if (ref.is_leaf(data.node) && data.node.original.type != 'directory') {
-                        path = ref.get_path(data.node, '/')
+                        path = data.node.original.path
+                            // path = ref.get_path(data.node, '/')
                         console.log(path)
 
                         // if you click a file-node, that means download it
@@ -99,11 +100,13 @@
                     var ref = $('#jstree1').jstree(true)
                     parent = data.parent
                     node = data.node
-                    totalpath = ref.get_path(node, '/')
+                    oldpath = node.original.path
+                        // totalpath = ref.get_path(node, '/')
+                    totalpath = parent.original.path
                     destpath = totalpath.substr(0, totalpath.length - node.text.length)
                     console.log(destpath)
                     ipc.send('move', {
-                        oldpath: node.path + node.text,
+                        oldpath: node.original.path + node.text,
                         newpath: destpath,
                         node: node
                     })
@@ -123,7 +126,7 @@
                 //                     "opened": true,
                 //                     "selected": false
                 //                 },
-                //                 "text": "夏宇信息",
+                //                 "text": "zhm",
                 //                 "timestamp": 0,
                 //                 "type": "directory",
                 //                 "path": "/",
@@ -133,7 +136,7 @@
                 //                 "text": "工程.pdf",
                 //                 "timestamp": 0,
                 //                 "type": "other",
-                //                 "path": "夏宇信息/"
+                //                 "path": "/工程.pdf"
                 //             }, {
                 //                 "id": "5",
                 //                 "parent": "1",
@@ -245,7 +248,8 @@
                             if (!result.canceled) {
                                 filepath = result.filePaths[0]
                                 filename = filepath.substr(filepath.lastIndexOf('/') + 1)
-                                cloudpath = ref.get_path(node, '/') + '/'
+                                cloudpath = node.original.path + '/' + filename
+                                    // cloudpath = ref.get_path(node, '/') + '/'
                                 console.log(cloudpath)
 
                                 var timestamp = ref.get_node(1).original.timestamp
@@ -312,27 +316,32 @@
                     } else {} // do nothing
 
                     // ref.edit(ref, curnode.val)
-                    // 根目录节点ID为0
+                    // 根目录节点ID为1
                     var timestamp = ref.get_node(1).original.timestamp
 
                     newNodeid = ref.create_node(currNodeid, {
                         "type": "directory",
                         "timestamp": timestamp,
-                        "path": curnode.original.path + curnode.text + '/'
+                        "path": curnode.original.path,
                     });
 
                     function editcallback(node, state, canceled) {
                         if (!canceled) {
                             if (state) {
                                 console.log(node)
-                                    // newNode = ref.get_node(newNodeid)
+                                if (curnode.original.path == '/') {
+                                    node.original.path = curnode.original.path + node.text
+                                } else {
+                                    node.original.path = curnode.original.path + '/' + node.text
+                                }
+                                // newNode = ref.get_node(newNodeid)
                                 ipc.send("createdir", node.original.path)
                             } else {
                                 console.log("edit state error")
                             }
                         } else {
                             console.log("edit cancelled")
-                            ipc.send("createdir", node)
+                            ref.delete_node(newNodeid)
                         }
                     }
                     if (newNodeid) {

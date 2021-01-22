@@ -207,7 +207,12 @@ ipcmain.on("createdir", (event, data) => {
     }
     op = "mkdir"
     address = data
-    server_stub.fileOperation({ uuid: userid, op: op, address: address, extra: "" }, mkdircallback)
+    server_stub.fileOperation({
+        uuid: userid,
+        op: op,
+        address: address,
+        extra: ""
+    }, mkdircallback)
 })
 
 // NOTE 事件 rename
