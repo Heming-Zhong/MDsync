@@ -70,7 +70,7 @@ ipcmain.on('loginsuccess', (event, data) => {
     curwin.setSize(1080, 900)
     curwin.webContents.on("did-finish-load", () => {
         getfiletree()
-        setTimeout(updatelocaltree, 1500) // 设置检查同步状态的定时任务
+        setInterval(updatelocaltree, 1500) // 设置检查同步状态的定时任务
     })
     testwin = curwin
         // curwin.webContents.openDevTools()
@@ -119,6 +119,7 @@ ipcmain.on("upload", function(event, data) {
                 curwin.webContents.send("update shown", mdfileshowndata)
             }
             event.returnValue = stat
+            getfiletree()
         }
     }
     filecontent = fs.readFileSync(localpath)
