@@ -22,13 +22,6 @@
             <!-- <input type="submit" id="submitip" onclick="teststub()" /> -->
         </form>
         <script>
-            function enterkey() {
-                if (event.keyCode == 13) {
-                    document.getElementById("enter").click();
-                    return false;
-                }
-            }
-
             function teststub() {
                 ip = document.getElementById("ip").value;
                 port = document.getElementById("port").value;
@@ -41,7 +34,8 @@
         <br>
         <input type="text" id="user" /><br>
         <input type="password" id="passwd" /> <br>
-        <input type="submit" id="submitacount" onclick="handle()" onkey/>
+
+        <input type="submit" id="submitacount" onclick="handle()" onkeydown="javascript:if(event.keyCode==13) handle()" />
         <script>
             function handle() {
                 let username = document.getElementById("user").value;
