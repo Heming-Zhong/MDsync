@@ -7,9 +7,16 @@ const path=require('path');
 
 function main()
 {
-    /* validate the config file */
+    /* init dir/files */
+    fs.ensureDir(path.join(__dirname,"runtime"));
+    fs.ensureDir(path.join(__dirname,"runtime/file"));
+    if (!fs.existsSync(path.join(__dirname,"runtime/conf.json")))
+    {
+        fs.copyFileSync(path.join(__dirname,"conf.json.example"),path.join(__dirname,"runtime/conf.json"));
+    }
+
+    /* read the config file */
     var config=require('./runtime/conf.json');
-    //TODO: make a validate method here
     if (config.server.host=='undefined')
     {
         console.log(chalk.red('[error] conf.json is incomplete'));
