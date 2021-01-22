@@ -77,7 +77,8 @@
                     console.log(data.node.original.type);
                     // 叶节点同时类型不是dir，说明是文件
                     if (ref.is_leaf(data.node) && data.node.original.type != 'directory') {
-                        path = ref.get_path(data.node, '/')
+                        path = data.node.original.path
+                            // path = ref.get_path(data.node, '/')
                         console.log(path)
 
                         // if you click a file-node, that means download it
@@ -99,11 +100,12 @@
                     var ref = $('#jstree1').jstree(true)
                     parent = data.parent
                     node = data.node
-                    totalpath = ref.get_path(node, '/')
-                    destpath = totalpath.substr(0, totalpath.length - node.text.length)
+                    oldpath = node.original.path // 旧的目录位置
+                    totalpath = parent.original.path
+                    destpath = totalpath.substr(0, totalpath.length - node.text.length) // 新的目录位置
                     console.log(destpath)
                     ipc.send('move', {
-                        oldpath: node.path + node.text,
+                        oldpath: node.original.path,
                         newpath: destpath,
                         node: node
                     })
@@ -123,7 +125,7 @@
                 //                     "opened": true,
                 //                     "selected": false
                 //                 },
-                //                 "text": "夏宇信息",
+                //                 "text": "zhm",
                 //                 "timestamp": 0,
                 //                 "type": "directory",
                 //                 "path": "/",
@@ -133,7 +135,7 @@
                 //                 "text": "工程.pdf",
                 //                 "timestamp": 0,
                 //                 "type": "other",
-                //                 "path": "夏宇信息/"
+                //                 "path": "/工程.pdf"
                 //             }, {
                 //                 "id": "5",
                 //                 "parent": "1",
@@ -240,12 +242,17 @@
                             title: "请选择要上传的文件",
                         }).then(result => {
                             ref = $('#jstree1').jstree(true)
-                            node = _getCurrNode().id
+                                // nodeid = _getCurrNode().id
                             console.log(result)
                             if (!result.canceled) {
                                 filepath = result.filePaths[0]
                                 filename = filepath.substr(filepath.lastIndexOf('/') + 1)
-                                cloudpath = ref.get_path(node, '/') + '/'
+                                var cloudpath
+                                if (node.original.path == '/') {
+                                    cloudpath = node.original.path + filename
+                                } else {
+                                    cloudpath = node.original.path + '/' + filename
+                                }
                                 console.log(cloudpath)
 
                                 var timestamp = ref.get_node(1).original.timestamp
@@ -267,12 +274,15 @@
 
                                 console.log(newNodeid)
                                 newNode = ref.get_node(newNodeid)
-                                ipc.send("upload", {
+                                newid = ipc.sendSync("upload", {
                                     localpath: filepath,
                                     cloudpath: cloudpath,
                                     filename: filename,
                                     treenode: newNode
                                 })
+                                console.log(newid)
+                                ref.set_id(newNode, newid)
+                                    // newNode.id = newid
                             } else {
                                 console.log("upload canceled")
                             }
@@ -312,27 +322,36 @@
                     } else {} // do nothing
 
                     // ref.edit(ref, curnode.val)
-                    // 根目录节点ID为0
+                    // 根目录节点ID为1
                     var timestamp = ref.get_node(1).original.timestamp
 
+                    console.log(currNodeid)
                     newNodeid = ref.create_node(currNodeid, {
                         "type": "directory",
                         "timestamp": timestamp,
-                        "path": curnode.original.path + curnode.text + '/'
+                        "path": curnode.original.path,
                     });
 
                     function editcallback(node, state, canceled) {
                         if (!canceled) {
                             if (state) {
                                 console.log(node)
-                                    // newNode = ref.get_node(newNodeid)
-                                ipc.send("createdir", node.original.path)
+                                if (curnode.original.path == '/') {
+                                    node.original.path = curnode.original.path + node.text
+                                } else {
+                                    node.original.path = curnode.original.path + '/' + node.text
+                                }
+                                // newNode = ref.get_node(newNodeid)
+                                newid = ipc.sendSync("createdir", node.original.path)
+                                console.log(newid)
+                                ref.set_id(node, newid)
+                                    // node.id = newid
                             } else {
                                 console.log("edit state error")
                             }
                         } else {
                             console.log("edit cancelled")
-                            ipc.send("createdir", node)
+                            ref.delete_node(newNodeid)
                         }
                     }
                     if (newNodeid) {
@@ -364,7 +383,7 @@
                                     console.log(node)
                                     if (oldname != node.text) {
                                         ipc.send("rename", {
-                                            path: node.original.path + oldname,
+                                            path: node.original.path,
                                             name: node.text,
                                             node: node
                                         })
@@ -405,13 +424,13 @@
                         if (ref.is_leaf(currNodeid) && currNode.original.type != 'directory') {
                             console.log("rm...")
                             ipc.send("rm", {
-                                path: currNode.original.path + currNode.text,
+                                path: currNode.original.path,
                                 dir: false
                             })
                         } else { // rmdir
                             console.log("rmdir...")
                             ipc.send("rm", {
-                                path: currNode.original.path + currNode.text + '/',
+                                path: currNode.original.path,
                                 dir: true
                             })
                         }

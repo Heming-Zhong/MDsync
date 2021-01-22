@@ -3,7 +3,7 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>Hello World!</title>
+        <title>登录</title>
         <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
     </head>
 
@@ -13,8 +13,8 @@
             const rpc = require('./rpc')
             const ipc = require('electron').ipcRenderer
         </script>
-        <h1>Hello World！</h1>
-        服务端IP:
+        <h1>服务器和用户信息</h1>
+        服务端:
         <form>
             <input type="text" id="ip" pattern="(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$" />
             <br>
@@ -30,11 +30,12 @@
                 return stub
             }
         </script>
-        请登录:
+        用户:
         <br>
         <input type="text" id="user" /><br>
         <input type="password" id="passwd" /> <br>
-        <input type="submit" id="submitacount" onclick="handle()" />
+
+        <input type="submit" id="submitacount" onclick="handle()" onkeydown="javascript:if(event.keyCode==13) handle()" />
         <script>
             function handle() {
                 let username = document.getElementById("user").value;
@@ -47,7 +48,10 @@
                 // password = en.encry(password, "public.pem");
                 let stub = teststub();
                 console.log(stub)
-                ipc.send("stub", {ip: ip, port: port});
+                ipc.send("stub", {
+                    ip: ip,
+                    port: port
+                });
 
                 function logincallback(error, response) {
                     if (error) {
@@ -56,7 +60,10 @@
                         console.log(response)
                         if (response.status == 0) {
                             alert("登陆成功")
-                            ipc.send("loginsuccess", {id:response.uuid, ip:ip})
+                            ipc.send("loginsuccess", {
+                                id: response.uuid,
+                                ip: ip
+                            })
                         } else {
                             console.log("#debug login error")
                             alert("登陆失败")
