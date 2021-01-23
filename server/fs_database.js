@@ -67,7 +67,7 @@ var deleteNode=function(username,path,type)
     var node=db.prepare("select id from file where path=? and type=?").all(path,type);
     if (node.length==0) return wrongPath;
     
-    var nodeQueue=[node.id];
+    var nodeQueue=[node[0].id];
     node=db.prepare("select id from file where parent=?");
     while (nodeQueue.length!=0)
     {
@@ -83,6 +83,9 @@ var deleteNode=function(username,path,type)
 
     return null;
 }
+
+
+
 function changeTimeStamp(username,id,timeStamp)
 {
     var db=probeDB(username);

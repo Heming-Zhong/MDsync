@@ -69,7 +69,7 @@ function main()
         grpc.ServerCredentials.createInsecure(),
         () =>
         {
-            server.start()
+            server.start();
             logSys.writeLog('server','notify','grpc server started on '+config.server.host+':'+config.server.port);
         });
     
