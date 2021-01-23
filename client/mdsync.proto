@@ -57,6 +57,7 @@ message fileInfo
     string date=5;
     int64 size=6;
     string md5=7;
+    string id=8;
 };
 
 message socketInfo

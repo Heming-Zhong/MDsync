@@ -105,21 +105,40 @@ ipcmain.on("upload", function(event, data) {
             port = socketinfo.port
             stat = socketinfo.status
 
-            // 建立文件传输Socket
-            let client = new net.Socket()
-            client.connect(port, ip)
-            client.setEncoding('utf8')
-            filecontent = fs.readFileSync(localpath)
-            client.write(filecontent)
-            console.log("发送成功!")
-            client.end()
-            localnode.push(filenode)
-            if (postfix == 'md') {
-                mdfileshowndata = filecontent.toString('utf8')
-                curwin.webContents.send("update shown", mdfileshowndata)
+            if (stat == 0) {
+                // 建立文件传输Socket
+                let client = new net.Socket()
+                client.connect(port, ip)
+                client.setEncoding('utf8')
+                filecontent = fs.readFileSync(localpath)
+                client.write(filecontent)
+                console.log("发送成功!")
+                client.end()
+
+                client.on('end', function() {
+                    fileinforeq = { uuid: userid, op: "getFileInfo", address: clouddic, extra: "" }
+
+                    function fileinfocallback(error, fileinfo) {
+                        if (error) {
+                            console.log("服务端文件信息错误")
+                        } else {
+                            id = fileinfo.id
+                            filenode.id = id
+                            console.log(id)
+                            localnode.push(filenode)
+                            if (postfix == 'md') {
+                                mdfileshowndata = filecontent.toString('utf8')
+                                curwin.webContents.send("update shown", mdfileshowndata)
+                            }
+                            event.returnValue = id
+                                // getfiletree()
+                        }
+                    }
+                    server_stub.getFileInfo(fileinforeq, fileinfocallback)
+                })
+            } else {
+                console.log("发送失败!")
             }
-            event.returnValue = stat
-            getfiletree()
         }
     }
     filecontent = fs.readFileSync(localpath)
@@ -131,6 +150,7 @@ ipcmain.on("upload", function(event, data) {
         curwin.webContents.send("update shown", mdfileshowndata)
     }
     server_stub.newFileReq(request, uploadcallback)
+
 })
 
 // NOTE 事件 download
@@ -158,6 +178,8 @@ ipcmain.on("download", (event, data) => {
             event.sender.send("update shown", mdfileshowndata)
         }
     } else {
+        console.log("本地不存在副本，执行下载...")
+
         function downloadcallback(error, socketinfo) {
             if (error) {
                 console.log("下载出现错误!")
@@ -166,29 +188,34 @@ ipcmain.on("download", (event, data) => {
                 ip = serverip
                 port = socketinfo.port
                 stat = socketinfo.status
-                let client = new net.Socket()
-                client.connect(port, ip)
-                client.setEncoding('utf8')
-                client.on("data", function(data) {
-                    console.log(data)
+                if (stat == 0) {
+                    let client = new net.Socket()
+                    client.connect(port, ip)
+                    client.setEncoding('utf8')
+                    client.on("data", function(data) {
 
-                    checkdir(localpath.substr(0, localpath.length - filename.length))
-                    fs.writeFileSync(localpath, data)
-                    tempdata += data
-                })
-
-                console.log(tempdata)
-                client.on("end", function() {
-                        console.log("socket end")
+                        checkdir(localpath.substr(0, localpath.length - filename.length))
+                        fs.writeFileSync(localpath, data)
+                        tempdata += data
                     })
+
+                    client.on("end", function() {
+                        console.log("socket end")
+                        console.log("downloaded data:" + tempdata)
+                        if (node.original.type == 'markdown') {
+                            mdfileshowndata = tempdata.toString("utf8")
+                            console.log(tempdata)
+                            curwin.webContents.send("update shown", mdfileshowndata)
+                        }
+                        console.log("下载成功!")
+                        localnode.push(node) // 本地只记录文件节点的信息，即叶节点
+                    })
+
                     // arr = filename.split('.')
                     // postfix = arr[arr.length - 1]
-                if (node.original.type == 'markdown') {
-                    mdfileshowndata = tempdata.toString("utf8")
-                    curwin.webContents.send("update shown", mdfileshowndata)
+                } else {
+                    console.log("下载失败!")
                 }
-                console.log("下载成功")
-                localnode.push(node) // 本地只记录文件节点的信息，即叶节点
             }
         }
         server_stub.downloadReq(request, downloadcallback)
@@ -228,9 +255,10 @@ ipcmain.on("rename", (event, data) => {
     newname = data.name
     node = data.node
 
-
+    console.log("rename...")
 
     function renamecallback(error, response) {
+        console.log("callback")
         if (error) {
             console.log("与服务器通信出现错误!")
         } else {
@@ -399,7 +427,8 @@ function checkupdate() {
             address: "timestamp",
             extra: ""
         },
-        function(error, time) {
+        function(error, res) {
+            time = parseInt(res)
             if (localvectime < time) {
                 console.log("out of date... updating")
                 console.log(localvectime)

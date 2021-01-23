@@ -271,7 +271,6 @@
                                     "timestamp": timestamp,
                                     "path": cloudpath
                                 });
-
                                 console.log(newNodeid)
                                 newNode = ref.get_node(newNodeid)
                                 newid = ipc.sendSync("upload", {
@@ -280,7 +279,7 @@
                                     filename: filename,
                                     treenode: newNode
                                 })
-                                console.log(newid)
+                                alert(newid)
                                 ref.set_id(newNode, newid)
                                     // newNode.id = newid
                             } else {
@@ -382,6 +381,7 @@
                                 if (state) {
                                     console.log(node)
                                     if (oldname != node.text) {
+                                        console.log(node.original.path)
                                         ipc.send("rename", {
                                             path: node.original.path,
                                             name: node.text,
