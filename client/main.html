@@ -98,8 +98,9 @@
                 // NOTE move_node
                 .on('move_node.jstree', function(event, data) {
                     var ref = $('#jstree1').jstree(true)
-                    parent = data.parent
-                    node = data.node
+                    parentid = data.parent // 注意这个是id
+                    parent = ref.get_node(parentid)
+                    node = data.node // 注意这个是节点对象
                     oldpath = node.original.path // 旧的目录位置
                     totalpath = parent.original.path
                     destpath = totalpath.substr(0, totalpath.length - node.text.length) // 新的目录位置
@@ -271,7 +272,6 @@
                                     "timestamp": timestamp,
                                     "path": cloudpath
                                 });
-
                                 console.log(newNodeid)
                                 newNode = ref.get_node(newNodeid)
                                 newid = ipc.sendSync("upload", {
@@ -280,7 +280,7 @@
                                     filename: filename,
                                     treenode: newNode
                                 })
-                                console.log(newid)
+                                alert(newid)
                                 ref.set_id(newNode, newid)
                                     // newNode.id = newid
                             } else {
@@ -382,6 +382,7 @@
                                 if (state) {
                                     console.log(node)
                                     if (oldname != node.text) {
+                                        console.log(node.original.path)
                                         ipc.send("rename", {
                                             path: node.original.path,
                                             name: node.text,
