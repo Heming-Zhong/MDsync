@@ -230,7 +230,7 @@ var fileOperation=function(call,callback)
             path:req.address,
             timestamp:global.serverTime
         })
-        var tmp=fsDB.parsePath(user,req.address);
+        var tmp=fsDB.parseDir(user,req.address);
         ret.uuid=tmp.id;
         break;
     case 'mv':

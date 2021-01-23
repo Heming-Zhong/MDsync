@@ -8,7 +8,7 @@ var splitAddr=function(addr)
     fileName=pathArr[pathArr.length-1];
     dirName=addr.substr(0,addr.length-fileName.length-1);
 
-    if (dirName=='') dirName=='/';
+    if (dirName=='') dirName='/';
 
     return {
         dirname:dirName,
@@ -39,19 +39,27 @@ function probeDB(username)
 var parsePath=function(username,path)//only parse dir!
 {
     var db=probeDB(username);
-    var id=db.prepare("select id from file where path=? and type='dir'").all(path);
+    var id=db.prepare("select id from file where path=? and type='directory'").all(path);
     if (id.length==0) return wrongPath;
     id=id[0].id;
     var list=db.prepare("select id,name,type from file where parent=?").all(id);
     return list;
 }
+var parseDir=function(username,path)
+{
+    var db=probeDB(username);
+    var fileAttr=db.prepare("select id,name,type from file where path=? and type='directory'").all(path);
+    if (fileAttr.length==0) return wrongPath;
+    fileAttr=fileAttr[0];
+    return fileAttr;
+}
 var parseFile=function(username,path)//only parse file!
 {
     var db=probeDB(username);
-    var fileAttr=db.prepare("select id,name,type from file where path=? and type='dir'").all(path);
+    var fileAttr=db.prepare("select id,name,type from file where path=? and type<>'directory'").all(path);
     if (fileAttr.length==0) return wrongPath;
     fileAttr=fileAttr[0];
-    return fileAttr
+    return fileAttr;
 }
 var deleteNode=function(username,path,type)
 {
@@ -94,6 +102,7 @@ var addNode=function(username,info)
     parentPath=parentPath.dirname;
     
     var parent;
+    console.log(parentPath);
     parent=db.prepare("select id from file where path=? and type='directory'").get(parentPath);
     parent=parent.id;
     //insert
@@ -170,6 +179,7 @@ exports.genTree=genTree;
 exports.wrongPath=wrongPath;
 exports.parsePath=parsePath;
 exports.parseFile=parseFile;
+exports.parseDir=parseDir;
 exports.deleteNode=deleteNode;
 exports.addNode=addNode;
 exports.updateNode=updateNode;
