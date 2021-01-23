@@ -2,6 +2,7 @@
 var userMap=new Map();
 var auth=require('./user_auth');
 var fsDB=require('./fs_database');
+var logSys=require('./log_sys');
 
 const chalk=require('chalk');
 
@@ -10,11 +11,15 @@ const chalk=require('chalk');
 const { v4:uuidv4 } = require('uuid');
 function TTLControl()
 {
-    console.log(chalk.blueBright('[server] TTL Control Started'));
+    logSys.writeLog('server','log','TTL Control Started');
     userMap.forEach(function(value,key)
     {
         value.TTL-=1;
-        if (value.TTL<=0) userMap.delete(key);
+        if (value.TTL<=0)
+        {
+            logSys.writeLog('server','notify',value.username+' timeout');
+            userMap.delete(key);
+        }
     });
 }
 function getServerTime()
@@ -45,7 +50,7 @@ exports.setServerTime=setServerTime;
 var login=function(call,callback)
 {
     var loginInfo=call.request;
-    console.log(chalk.blueBright('[server] user '+loginInfo.name+' try to login'));
+    logSys.writeLog('grpc','notify','user '+loginInfo.name+' try to login');
     var ret;
     var result=auth.auth(loginInfo.name,loginInfo.passwd);
     if (result)
@@ -297,11 +302,11 @@ var uploadReq=function(call,callback)
     var net=require('net');
     var server=net.createServer(function(connection)
     {
-        console.log('TCP Connect in');
+        logSys.writeLog('tcp','notify','TCP connect');
         connection.on('end', function() {
             moveServerTime();
             fsDB.moveNode(user,req.address,req.address);
-            console.log('File Transfer Done');
+            logSys.writeLog('tcp','notify','TCP file transfer done');
         });
         connection.on('data',function(data){
             fs.writeFile(filePath,data);
@@ -339,9 +344,9 @@ var downloadReq=function(call,callback)
     var net=require('net');
     var server=net.createServer(function(connection)
     {
-        console.log('TCP Connect in');
+        logSys.writeLog('tcp','notify','TCP connect');
         connection.on('end', function() {
-            console.log('File Transfer Done');
+            logSys.writeLog('tcp','notify','TCP file transfer done');
         });
         var data=fs.readFileSync(filePath);
         connection.write(data);
@@ -384,7 +389,7 @@ var newFileReq=function(call,callback)
     
     var server=net.createServer(function(connection)
     {
-        console.log('TCP Connect in');
+        logSys.writeLog('tcp','notify','TCP connect');
         connection.on('end', function() {
             moveServerTime();
             fsDB.addNode(user,{
@@ -392,7 +397,7 @@ var newFileReq=function(call,callback)
                 path:req.address,
                 timestamp:getServerTime()
             });
-            console.log('File Transfer Done');
+            logSys.writeLog('tcp','notify','TCP file transfer done');
         });
         connection.on('data',function(data){
             fs.writeFile(filePath,data);

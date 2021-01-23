@@ -22,7 +22,6 @@ function probeDB(username)
     const path=require("path");
     var dir="runtime/files/"+username+"/.info.db";
     dir=path.join(__dirname,dir);
-    console.log(dir);
     var db;
     if (!fs.existsSync(dir))//not exist
     {
