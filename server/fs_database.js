@@ -41,13 +41,13 @@ var parsePath=function(username,path)//only parse dir!
     var id=db.prepare("select id from file where path=? and type='dir'").all(path);
     if (id.length==0) return wrongPath;
     id=id[0].id;
-    var list=db.prepare("select name,type from file where parent=?").all(id);
+    var list=db.prepare("select id,name,type from file where parent=?").all(id);
     return list;
 }
 var parseFile=function(username,path)//only parse file!
 {
     var db=probeDB(username);
-    var fileAttr=db.prepare("select name,type from file where path=? and type='dir'").all(path);
+    var fileAttr=db.prepare("select id,name,type from file where path=? and type='dir'").all(path);
     if (fileAttr.length==0) return wrongPath;
     fileAttr=fileAttr[0];
     return fileAttr

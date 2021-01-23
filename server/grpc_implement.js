@@ -223,6 +223,8 @@ var fileOperation=function(call,callback)
             path:req.address,
             timestamp:global.serverTime
         })
+        var tmp=fsDB.parsePath(user,req.address);
+        ret.uuid=tmp.id;
         break;
     case 'mv':
         //1. cheak addr
@@ -379,6 +381,7 @@ var newFileReq=function(call,callback)
     var user=userMap.get(req.uuid).username;
     var filePath=__dirname+'/runtime/files/'+user+req.address;
     var net=require('net');
+    
     var server=net.createServer(function(connection)
     {
         console.log('TCP Connect in');
@@ -396,7 +399,6 @@ var newFileReq=function(call,callback)
         })
     });
 
-    //TCP服务器开始端口监听
     server.listen(0,function()
     {
         ret.ip=global.serverHost;
