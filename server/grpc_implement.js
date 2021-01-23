@@ -123,7 +123,8 @@ var getFileInfo=function(call,callback)
         name:null,
         date:null,
         size:null,
-        md5:null
+        md5:null,
+        id:null
     }
     if (req.op!="getFileInfo")     //wrong operation
     {
@@ -147,6 +148,7 @@ var getFileInfo=function(call,callback)
     ret.status=0;
     ret.type=fileAttr.type;
     ret.name=fileAttr.name;
+    ret.id=fileAttr.id;
 
 
     var fs=require('fs');

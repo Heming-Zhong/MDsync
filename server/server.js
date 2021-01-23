@@ -1,6 +1,5 @@
 const grpc=require('@grpc/grpc-js');
 const proto=require('./proto');
-const chalk=require('chalk');
 const impl=require('./grpc_implement');
 const fs=require("fs-extra");
 const path=require('path');
