@@ -40,15 +40,6 @@ function main()
         mainDB.prepare("create table property (name varchar(20),value varchar(50),primary key(name))").run();
         mainDB.prepare("insert into property values('timestamp','0')").run();
     }
-    else
-    {
-        const mainDB=require("better-sqlite3")("runtime/MDSync.db");
-        var query=mainDB.prepare("select value from property where name='timestamp'");
-        var result=query.get().values;
-        result=parseInt(result);
-        impl.setServerTime(result);
-    }
-
 
     /* start gRPC server */
     var server=new grpc.Server();

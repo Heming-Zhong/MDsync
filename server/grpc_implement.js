@@ -4,8 +4,6 @@ var auth=require('./user_auth');
 var fsDB=require('./fs_database');
 var logSys=require('./log_sys');
 
-const chalk=require('chalk');
-
 
 /* helper function */
 const { v4:uuidv4 } = require('uuid');
@@ -26,13 +24,15 @@ function getServerTime()
 {
     const mainDB=require("better-sqlite3")("runtime/MDSync.db");
     var cur=mainDB.prepare("select value from property where name='timestamp'").get();
-    return parseInt(cur);
+    logSys.writeLog('get-time','notice','timestamp is '+cur.value);
+    return parseInt(cur.value);
 }
 function moveServerTime()
 {
     var time=getServerTime()+1;
     const mainDB=require("better-sqlite3")("runtime/MDSync.db");
     mainDB.prepare("update property set value=? where name='timestamp'").run(time.toString());
+    logSys.writeLog('move-time','notice','timestamp is '+time);
 }
 function setServerTime(time)
 {
@@ -215,6 +215,7 @@ var fileOperation=function(call,callback)
         fs.removeSync(filePath);
         //3. rm db
         fsDB.deleteNode(user,req.address,"directory");
+        moveServerTime();
         break;
     case 'mkdir':
         //1. cheak addr
@@ -234,6 +235,7 @@ var fileOperation=function(call,callback)
         })
         var tmp=fsDB.parseDir(user,req.address);
         ret.uuid=tmp.id;
+        moveServerTime();
         break;
     case 'mv':
         //1. cheak addr
@@ -251,6 +253,7 @@ var fileOperation=function(call,callback)
             fsDB.moveNode(user,req.address,"markdown",req.extra);
         }
         else fsDB.moveNode(user,req.address,"other",req.extra,getServerTime());
+        moveServerTime();
         
         break;
     case 'mvdir':
@@ -265,6 +268,7 @@ var fileOperation=function(call,callback)
         fs.moveSync(filePath,__dirname+'/runtime/files/'+user+req.extra);
         //3. DB op
         fsDB.moveNode(user,req.address,"directory",req.extra,getServerTime());
+        moveServerTime();
         break;
     case 'rename':
         //1. cheak addr
@@ -285,6 +289,7 @@ var fileOperation=function(call,callback)
         fs.renameSync(filePath,__dirname+'/runtime/files/'+user+newPath);
         //3. DB op
         fsDB.moveNode(user,req.address,"directory",newPath,getServerTime());
+        moveServerTime();
         break;
     default:
         ret.status=1;//wrong operation
