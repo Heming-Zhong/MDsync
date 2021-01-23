@@ -10,7 +10,7 @@ function main()
 {
     /* init dir/files */
     fs.ensureDirSync(path.join(__dirname,"runtime"));
-    fs.ensureDirSync(path.join(__dirname,"runtime/file"));
+    fs.ensureDirSync(path.join(__dirname,"runtime/files"));
     if (!fs.existsSync(path.join(__dirname,"runtime/conf.json")))
     {
 

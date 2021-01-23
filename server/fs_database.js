@@ -8,7 +8,7 @@ var splitAddr=function(addr)
     fileName=pathArr[pathArr.length-1];
     dirName=addr.substr(0,addr.length-fileName.length-1);
 
-    if (dirname=='') dirname=='/';
+    if (dirName=='') dirName=='/';
 
     return {
         dirname:dirName,
