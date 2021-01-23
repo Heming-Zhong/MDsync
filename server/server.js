@@ -5,6 +5,8 @@ const impl=require('./grpc_implement');
 const fs=require("fs-extra");
 const path=require('path');
 
+var logSys=require('./log_sys');
+
 function main()
 {
     /* init dir/files */
@@ -20,13 +22,13 @@ function main()
     var config=require('./runtime/conf.json');
     if (config.server.host=='undefined')
     {
-        console.log(chalk.red('[error] conf.json is incomplete'));
+        logSys.writeLog('config','error','conf.json is incomplete');
         return 1;
     }
     else global.serverHost=config.server.host;
     if (config.server.port=='undefined')
     {
-        console.log(chalk.red('[error] conf.json is incomplete'));
+        logSys.writeLog('config','error','conf.json is incomplete');
         return 1;
     }
     else global.serverPort=config.server.port;
@@ -51,7 +53,6 @@ function main()
 
     /* start gRPC server */
     var server=new grpc.Server();
-    //console.log(proto);
     server.addService(proto.serviceMDSync.service,
         {
             login:impl.login,
@@ -70,7 +71,7 @@ function main()
         () =>
         {
             server.start()
-            console.log(chalk.blueBright('[server] grpc server started on '+config.server.host+':'+config.server.port));
+            logSys.writeLog('server','notify','grpc server started on '+config.server.host+':'+config.server.port);
         });
     
     /* other works */
