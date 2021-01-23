@@ -119,7 +119,7 @@ var getFileInfo=function(call,callback)
     var req=call.request;
     var ret={
         status:1,
-        type:other,
+        type:'other',
         name:null,
         date:null,
         size:null,
@@ -180,7 +180,6 @@ var fileOperation=function(call,callback)
 
     var fs=require('fs-extra');
     var user=userMap.get(req.uuid).username;
-    var fileAttr=fsDB.parseFile(user,req.address);
     var filePath=__dirname+'/runtime/files/'+user+req.address;
     
 
@@ -188,6 +187,7 @@ var fileOperation=function(call,callback)
     {
     case 'rm':
         //1. cheak addr
+        var fileAttr=fsDB.parseFile(user,req.address);
         if (fileAttr==fsDB.wrongPath)
         {
             ret.status=3;
@@ -201,10 +201,11 @@ var fileOperation=function(call,callback)
             fsDB.deleteNode(user,req.address,"markdown");
         }
         else fsDB.deleteNode(user,req.address,"other");
-        global.serverTime+=1;
+        moveServerTime();
         break;
     case 'rmdir':
         //1. cheak addr
+        var fileAttr=fsDB.parseDir(user,req.address);
         if (fileAttr==fsDB.wrongPath)
         {
             ret.status=3;
@@ -217,6 +218,7 @@ var fileOperation=function(call,callback)
         break;
     case 'mkdir':
         //1. cheak addr
+        var fileAttr=fsDB.parseDir(user,req.address);
         if (fileAttr!=fsDB.wrongPath)
         {
             ret.status=3;
@@ -228,13 +230,14 @@ var fileOperation=function(call,callback)
         fsDB.addNode(user,{
             type:"directory",
             path:req.address,
-            timestamp:global.serverTime
+            timestamp:getServerTime().toString()
         })
         var tmp=fsDB.parseDir(user,req.address);
         ret.uuid=tmp.id;
         break;
     case 'mv':
         //1. cheak addr
+        var fileAttr=fsDB.parseFile(user,req.address);
         if (fileAttr==fsDB.wrongPath)
         {
             ret.status=3;
@@ -247,11 +250,12 @@ var fileOperation=function(call,callback)
         {
             fsDB.moveNode(user,req.address,"markdown",req.extra);
         }
-        else fsDB.moveNode(user,req.address,"other",req.extra,global.serverTime);
+        else fsDB.moveNode(user,req.address,"other",req.extra,getServerTime());
         
         break;
     case 'mvdir':
         //1. cheak addr
+        var fileAttr=fsDB.parseDir(user,req.address);
         if (fileAttr==fsDB.wrongPath)
         {
             ret.status=3;
@@ -260,20 +264,27 @@ var fileOperation=function(call,callback)
         //2. fs op
         fs.moveSync(filePath,__dirname+'/runtime/files/'+user+req.extra);
         //3. DB op
-        fsDB.moveNode(user,req.address,"directory",req.extra,global.serverTime);
+        fsDB.moveNode(user,req.address,"directory",req.extra,getServerTime());
         break;
     case 'rename':
         //1. cheak addr
+        var fileAttr=fsDB.parseFile(user,req.address);
         if (fileAttr==fsDB.wrongPath)
         {
-            ret.status=3;
-            break;
+            fileAttr=fsDB.parseDir(user,req.address);
+            if (fileAttr==fsDB.wrongPath)
+            {
+                ret.status=3;
+                break;
+            }
         }
         //2. fs op
-        var newPath=fsDB.splitAddr(req.address).dirname+"/"+req.extra;
+        var newPath=fsDB.splitAddr(req.address).dirname;
+        if (newPath!='/') newPath=newPath+'/';
+        newPath+=req.extra;
         fs.renameSync(filePath,__dirname+'/runtime/files/'+user+newPath);
         //3. DB op
-        fsDB.moveNode(user,req.address,"directory",newPath,global.serverTime);
+        fsDB.moveNode(user,req.address,"directory",newPath,getServerTime());
         break;
     default:
         ret.status=1;//wrong operation
@@ -397,7 +408,7 @@ var newFileReq=function(call,callback)
             fsDB.addNode(user,{
                 type:type,
                 path:req.address,
-                timestamp:getServerTime()
+                timestamp:getServerTime().toString()
             });
             logSys.writeLog('tcp','notify','TCP file transfer done');
         });

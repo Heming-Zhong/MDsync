@@ -102,7 +102,6 @@ var addNode=function(username,info)
     parentPath=parentPath.dirname;
     
     var parent;
-    console.log(parentPath);
     parent=db.prepare("select id from file where path=? and type='directory'").get(parentPath);
     parent=parent.id;
     //insert
@@ -143,7 +142,7 @@ var moveNode=function(username,oldPath,type,newPath,timeStamp)
     id=id[0].id;
     var parent=db.prepare("select id from file where path=? and type='directory'").all(newArr.dirname);
     if (parent.length==0) return wrongPath;
-    parent=id[0].id;
+    parent=parent[0].id;
     db.prepare("update file set name=?,path=?,parent=? where id=?")
         .run(newArr.filename,
             newPath,
