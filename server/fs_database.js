@@ -8,6 +8,8 @@ var splitAddr=function(addr)
     fileName=pathArr[pathArr.length-1];
     dirName=addr.substr(0,addr.length-fileName.length-1);
 
+    if (dirname=='') dirname=='/';
+
     return {
         dirname:dirName,
         filename:fileName
@@ -91,13 +93,10 @@ var addNode=function(username,info)
     var parentPath=splitAddr(info.path);
     var nodeName=parentPath.filename;
     parentPath=parentPath.dirname;
+    
     var parent;
-    if (parentPath=='') parent=1;
-    else
-    {
-        parent=db.prepare("select id from file where path=? and type='directory'").get(parentPath);
-        parent=parent.id;
-    }
+    parent=db.prepare("select id from file where path=? and type='directory'").get(parentPath);
+    parent=parent.id;
     //insert
     db.prepare("insert into file(name,type,path,parent,timestamp) values(?,?,?,?,?)")
         .run(nodeName,
