@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <title>登录</title>
         <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+        <link rel="stylesheet" type="text/css" href="index.css">
     </head>
 
     <body>
@@ -13,13 +14,11 @@
             const rpc = require('./rpc')
             const ipc = require('electron').ipcRenderer
         </script>
-        <h1>服务器和用户信息</h1>
-        服务端:
-        <form>
-            <input type="text" id="ip" pattern="(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$" value="127.0.0.1" />
-            <br>
-            <input type="text" id="port" pattern="^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$" value="5666" /><br>
-            <!-- <input type="submit" id="submitip" onclick="teststub()" /> -->
+        <h1 class="inputfield">登录</h1>
+        <form class="input">
+            <div class="inputfield">服务端:</div>
+            <input type="text" class="inputfield" id="ip" pattern="(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$" value="127.0.0.1" />
+            <input type="text" class="inputfield" id="port" pattern="^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$" value="5666" />
         </form>
         <script>
             function teststub() {
@@ -30,12 +29,14 @@
                 return stub
             }
         </script>
-        用户:
-        <br>
-        <input type="text" id="user" value="zhm" /><br>
-        <input type="password" id="passwd" value="1234" /> <br>
-
-        <input type="submit" id="submitacount" onclick="handle()" onkeydown="javascript:if(event.keyCode==13) handle()" />
+        <form class="input">
+            <div class="inputfield">用户:</div>
+            <input type="text" class="inputfield" id="user" value="zhm" />
+            <input type="password" class="inputfield" id="passwd" value="1234" />
+        </form>
+        <button class="inputfield btn" id="submitacount" onclick="handle()" onkeydown="javascript:if(event.keyCode==13) handle()">
+            登录
+        </button>
         <script>
             function handle() {
                 let username = document.getElementById("user").value;

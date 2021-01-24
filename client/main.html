@@ -32,6 +32,7 @@
         </script>
         <script src="node_modules/jquery/dist/jquery.min.js"></script>
         <link rel="stylesheet" href="jstree/dist/themes/default/style.min.css" />
+        <link rel="stylesheet" href="main.css" />
         <script src="jstree/dist/jstree.min.js"></script>
         <script src="tui-editor/toastui-editor-all.js"></script>
         <script>
@@ -49,6 +50,15 @@
                 console.log("helleo")
                 console.log(msg)
                 data = JSON.parse(msg)
+                for (i in data) {
+                    if (data[i].type == "markdown") {
+                        data[i].icon = "./icons/md.jpg"
+                    } else if (data[i].type == "directory") {
+                        data[i].icon = "./icons/folder.jpg"
+                    } else {
+                        data[i].icon = "./icons/file.jpg"
+                    }
+                }
                 $('#jstree1').jstree({
                     "core": {
                         data: data,
@@ -367,22 +377,6 @@
                     }
                 }
             }
-
-
-            function moveup() {
-                var ref = $('#jstree1').jstree(true);
-                var currNode = _getCurrNode();
-                var prevNode = ref.get_prev_dom(currNode, true);
-                ref.move_node(currNode, prevNode, 'before');
-            }
-
-            function movedown() {
-                var ref = $('#jstree1').jstree(true);
-                var currNode = _getCurrNode();
-                var nextNode = ref.get_next_dom(currNode, true); //返回兄弟节点的下一个节点
-                ref.move_node(currNode, nextNode, 'after');
-            }
-
             // NOTE _getCurrNode
             // 获取当前所选中的结点
             function _getCurrNode() {
@@ -408,14 +402,15 @@
         <div style="display: inline-flex;">
             <!-- 目录栏 -->
             <div>
-                <input type="button" value="创建目录" onclick="createdir();">
-                <input type="button" value="新建文件" onclick="createfile();">
-                <input type="button" value="重命名" onclick="rename();">
-                <input type="button" value="删除" onclick="del();">
-                <input type="button" value="上传" onclick="upload()">
-                <!-- <input type="button" value="上移" onclick="moveup();"> -->
-                <!-- <input type="button" value="下移" onclick="movedown();"> -->
-                <div id="jstree1" style="width:200px;height:100%;background:#ffffff"></div>
+                <div class="treebtn">
+                    <button onclick="createdir();">创建目录</button>
+                    <button onclick="del();">删除项目</button>
+                </div>
+                <div class="treebtn">
+                    <button onclick="rename();">重命名项</button>
+                    <button onclick="upload()">上传文件</button>
+                </div>
+                <div id="jstree1" style="width:auto;height:100%;background:#ffffff"></div>
             </div>
             <!-- 详细内容显示：MD编辑器和查看器 -->
             <div>
