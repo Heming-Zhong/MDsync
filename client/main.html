@@ -55,6 +55,7 @@
                         },
                         "check_callback": function(op, node, parent, position, more) {
                             op // 当前操作
+                            // console.log("parent:" + parent)
                             if (op == 'move_node') { //当进行拖拽时
                                 // 新的父节点必须是目录
                                 if (parent.original.type == 'directory') {
@@ -67,6 +68,26 @@
                         },
                     },
                     "plugins": ["contextmenu", "dnd"],
+                    "contextmenu": {
+                        "items": {
+                            "新建目录": {
+                                "label": "新建目录",
+                                "action": createdir()
+                            },
+                            "重命名": {
+                                "label": "重命名",
+                                "action": rename()
+                            },
+                            "上传": {
+                                "label": "上传",
+                                "action": upload()
+                            },
+                            "删除": {
+                                "label": "删除",
+                                "action": del()
+                            },
+                        }
+                    }
                 })
 
                 // NOTE select a node
@@ -102,124 +123,21 @@
                     parent = ref.get_node(parentid)
                     node = data.node // 注意这个是节点对象
                     oldpath = node.original.path // 旧的目录位置
-                    totalpath = parent.original.path
-                    destpath = totalpath.substr(0, totalpath.length - node.text.length) // 新的目录位置
-                    console.log(destpath)
-                    ipc.send('move', {
+                    destpath = parent.original.path + '/' + node.text
+                        // destpath = totalpath.substr(0, totalpath.length - node.text.length) // 新的目录位置
+                    console.log("destpath:" + destpath)
+                    console.log("oldpath:" + oldpath)
+                    status = ipc.sendSync('move', {
                         oldpath: node.original.path,
                         newpath: destpath,
                         node: node
                     })
-                    console.log(parent)
-                    console.log(node)
+                    if (status == 0) {
+                        console.log("移动成功")
+                        node.original.path = destpath
+                    }
                 });
             })
-            $(function() {
-
-                // $('#jstree1').jstree({
-                //         "core": {
-                //             "data": [{
-                //                 "id": "1",
-                //                 "parent": "#",
-                //                 "state": {
-                //                     "disabled": false,
-                //                     "opened": true,
-                //                     "selected": false
-                //                 },
-                //                 "text": "zhm",
-                //                 "timestamp": 0,
-                //                 "type": "directory",
-                //                 "path": "/",
-                //             }, {
-                //                 "id": "69",
-                //                 "parent": "1",
-                //                 "text": "工程.pdf",
-                //                 "timestamp": 0,
-                //                 "type": "other",
-                //                 "path": "/工程.pdf"
-                //             }, {
-                //                 "id": "5",
-                //                 "parent": "1",
-                //                 "text": "行政",
-                //                 "timestamp": 0,
-                //                 "type": "directory",
-                //                 "path": "夏宇信息/"
-                //             }, {
-                //                 "id": "71",
-                //                 "parent": "1",
-                //                 "text": "迷",
-                //                 "timestamp": 0,
-                //                 "type": "directory"
-                //             }, {
-                //                 "id": "72",
-                //                 "parent": "1",
-                //                 "text": "技术",
-                //                 "timestamp": 0,
-                //                 "type": "directory",
-                //                 "path": "夏宇信息/"
-                //             }],
-                //             "themes": {
-                //                 "variant": "large", //加大
-                //                 "ellipsis": false
-                //             },
-                //             "check_callback": function(op, node, parent, position, more) {
-                //                 op // 当前操作
-                //                 if (op == 'move_node') { //当进行拖拽时
-                //                     // 新的父节点必须是目录
-                //                     if (parent.original.type == 'directory') {
-                //                         return true;　　　　
-                //                     } else {　　　　　　
-                //                         return false;　　　　
-                //                     }　　
-                //                 }
-                //                 return true
-                //             },
-                //         },
-                //         "plugins": ["contextmenu", "dnd"],
-                //     })
-                // NOTE select a node
-
-                // .on('select_node.jstree', function(event, data) {
-                //     var ref = $('#jstree1').jstree(true);
-                //     // var _l = data.node.li_attr;
-                //     console.log(data.node.original.type);
-                //     // 叶节点同时类型不是dir，说明是文件
-                //     if (ref.is_leaf(data.node) && data.node.original.type != 'directory') {
-                //         path = ref.get_path(data.node, '/')
-                //         console.log(path)
-
-                //         // if you click a file-node, that means download it
-                //         _download(data.node, path)
-                //     } else {
-                //         // 说明是目录，什么也不做
-                //     }
-                // })
-
-                // // tree change
-                // .on('changed.jstree', function(event, data) {
-                //     console.log("-----------changed.jstree");
-                //     console.log("action:" + data.action);
-                //     console.log(data.node);
-                // })
-
-                // // NOTE move_node
-                // .on('move_node.jstree', function(event, data) {
-                //     var ref = $('#jstree1').jstree(true)
-                //     parent = data.parent
-                //     node = data.node
-                //     totalpath = ref.get_path(node, '/')
-                //     destpath = totalpath.substr(0, totalpath.length - node.text.length)
-                //     console.log(destpath)
-                //     ipc.send('move', {
-                //         oldpath: node.path + node.text,
-                //         newpath: destpath,
-                //         node: node
-                //     })
-                //     console.log(parent)
-                //     console.log(node)
-                // });
-
-            });
 
             // NOTE upload
             // 文件上传触发器

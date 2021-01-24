@@ -321,6 +321,7 @@ ipcmain.on("move", (event, data) => {
             if (status == 1) {
                 console.log("出现错误")
             }
+            event.returnValue = status
         }
     }
     server_stub.fileOperation({
