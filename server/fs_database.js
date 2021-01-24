@@ -89,12 +89,15 @@ var deleteNode=function(username,path,type)
 function changeTimeStamp(username,id,timeStamp)
 {
     var db=probeDB(username);
-    db.prepare("update file set timestamp=? where id=?").run(timeStamp,id);
-    var tmp=db.prepare("select parent from file where id=?").all(id);
-    if (tmp.length==0) return;
-    id=tmp[0].id;
-    changeTimeStamp(username,id,timeStamp);
-    return;
+    var update=db.prepare("update file set timestamp=? where id=?");
+    var tmpID=id;
+    while (true)
+    {
+        update.run(timeStamp,tmpID);
+        var tmp=db.prepare("select parent from file where id=?").all(id);
+        if (tmp.length==0) return;
+        tmpID=tmp[0].id;
+    }
 }
 var addNode=function(username,info)
 {
