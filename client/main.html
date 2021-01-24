@@ -458,13 +458,13 @@
                         data = msg.data
                         id = msg.id
                         if (edited) {
-                            dialog.ShowMessageBox({
+                            dialog.showMessageBox({
                                 type: "warning",
                                 title: "修改未保存",
                                 message: "是否放弃当前修改?",
-                                buttons: ["是", "否"]
+                                buttons: ["否", "是"]
                             }).then(result => {
-                                if (result.response) {
+                                if (result.response == 1) {
                                     console.log("放弃修改")
                                     var converter = new showdown.Converter();
                                     var html = converter.makeHtml(data);
@@ -495,7 +495,7 @@
                     }
 
                     function savechange() {
-                        curcontent = document.getElementsById("md-area").value;
+                        curcontent = document.getElementById("md-area").value;
                         ipc.send("dataupload", {
                             id: shownid,
                             data: curcontent
