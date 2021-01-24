@@ -323,7 +323,8 @@ var uploadReq=function(call,callback)
         logSys.writeLog('tcp','notify','TCP connect');
         connection.on('end', function() {
             moveServerTime();
-            fsDB.moveNode(user,req.address,req.address);
+            let id=fsDB.parseFile(user,req.address).id;
+            fsDB.changeTimeStamp(user,id,getServerTime());
             logSys.writeLog('tcp','notify','TCP file transfer done');
         });
         connection.on('data',function(data){
