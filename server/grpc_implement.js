@@ -24,7 +24,7 @@ function getServerTime()
 {
     const mainDB=require("better-sqlite3")("runtime/MDSync.db");
     var cur=mainDB.prepare("select value from property where name='timestamp'").get();
-    logSys.writeLog('get-time','notice','timestamp is '+cur.value);
+    logSys.writeLog('get-time','log','timestamp is '+cur.value);
     return parseInt(cur.value);
 }
 function moveServerTime()
@@ -32,7 +32,7 @@ function moveServerTime()
     var time=getServerTime()+1;
     const mainDB=require("better-sqlite3")("runtime/MDSync.db");
     mainDB.prepare("update property set value=? where name='timestamp'").run(time.toString());
-    logSys.writeLog('move-time','notice','timestamp is '+time);
+    logSys.writeLog('move-time','log','timestamp is '+time);
 }
 function setServerTime(time)
 {
