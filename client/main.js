@@ -429,7 +429,8 @@ function checkupdate() {
             extra: ""
         },
         function(error, res) {
-            time = parseInt(res)
+            time = parseInt(res.json)
+            console.log(time)
             if (localvectime < time) {
                 console.log("out of date... updating")
                 console.log(localvectime)
