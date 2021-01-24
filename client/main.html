@@ -52,11 +52,11 @@
                 data = JSON.parse(msg)
                 for (i in data) {
                     if (data[i].type == "markdown") {
-                        data[i].icon = "./icons/md.jpg"
+                        data[i].icon = "./icons/md.png"
                     } else if (data[i].type == "directory") {
-                        data[i].icon = "./icons/folder.jpg"
+                        data[i].icon = "./icons/folder.png"
                     } else {
-                        data[i].icon = "./icons/file.jpg"
+                        data[i].icon = "./icons/file.png"
                     }
                 }
                 $('#jstree1').jstree({
@@ -410,7 +410,7 @@
                     <button onclick="rename();">重命名项</button>
                     <button onclick="upload()">上传文件</button>
                 </div>
-                <div id="jstree1" style="width:auto;height:100%;background:#ffffff"></div>
+                <div id="jstree1" style="width:auto;height:100%;background:#ffffff;min-width: 10em;"></div>
             </div>
             <!-- 详细内容显示：MD编辑器和查看器 -->
             <div>

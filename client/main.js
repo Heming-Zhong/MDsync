@@ -19,8 +19,8 @@ var serverip = "" // 服务器IP地址
 // NOTE 创建主窗口
 function createWindow() {
     const win = new BrowserWindow({
-        width: 300,
-        height: 300,
+        width: 400,
+        height: 460,
         webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true
