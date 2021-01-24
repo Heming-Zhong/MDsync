@@ -131,7 +131,10 @@ ipcmain.on("upload", function(event, data) {
                             }
                             if (postfix == 'md') {
                                 mdfileshowndata = filecontent.toString('utf8')
-                                curwin.webContents.send("update shown", mdfileshowndata)
+                                curwin.webContents.send("update shown", {
+                                    data: mdfileshowndata,
+                                    id: id
+                                })
                             }
                             event.returnValue = id
                                 // getfiletree()
@@ -170,7 +173,10 @@ ipcmain.on("download", (event, data) => {
             mdfileshowndata = tempdata.toString("utf8")
                 // console.log(mdfileshowndata)
                 // curwin.webContents.send("update shown", mdfileshowndata)
-            event.sender.send("update shown", mdfileshowndata)
+            event.sender.send("update shown", {
+                data: mdfileshowndata,
+                id: node.id
+            })
         }
     } else {
         console.log("本地不存在副本，执行下载...")
@@ -200,7 +206,10 @@ ipcmain.on("download", (event, data) => {
                         if (node.original.type == 'markdown') {
                             mdfileshowndata = tempdata.toString("utf8")
                                 // console.log(tempdata)
-                            curwin.webContents.send("update shown", mdfileshowndata)
+                            curwin.webContents.send("update shown", {
+                                data: mdfileshowndata,
+                                id: node.id
+                            })
                         }
                         console.log("下载成功!")
                         if (!exists(node.id)) {
@@ -328,6 +337,54 @@ ipcmain.on("move", (event, data) => {
         address: oldpath,
         extra: newpath
     }, mvcallback)
+})
+
+
+// NOTE: 事件 dataupload
+// 上传修改后的文件内容
+ipcmain.on("dataupload", (event, arg) => {
+    id = arg.id
+    data = arg.data
+        // 先要找到对应节点的路径
+    var validpath = false
+    var path
+    for (i in userfiletree) {
+        if (userfiletree[i].id == id) {
+            path = userfiletree[i].path
+            validpath = true
+            break
+        }
+    }
+    if (validpath) {
+        console.log("designated path: " + path)
+
+        function updatecallback(error, socketinfo) {
+            if (error) {
+                console.log("与服务器通信出现错误!")
+            } else {
+                ip = socketinfo.ip
+                port = socketinfo.port
+                status = socketinfo.status
+                if (status == 0) {
+                    let client = new net.Socket()
+                    client.connect(port, ip)
+                    client.setEncoding('utf8')
+                    client.write(data)
+                    console.log("同步成功!")
+                    client.end()
+                }
+            }
+        }
+        server_stub.uploadReq({
+            uuid: userid,
+            op: "uploadReq",
+            address: path,
+            extra: ""
+        }, updatecallback)
+    } else {
+        console.log("Error: invalid id...")
+    }
+
 })
 
 // NOTE getfiletree
