@@ -5,6 +5,8 @@
         <meta charset="UTF-8">
         <title>主页</title>
         <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+        <link rel="stylesheet" type="text/css" href="tui-editor/codemirror.css">
+        <link rel="stylesheet" type="text/css" href="tui-editor/toastui-editor.css">
     </head>
     <style>
         .div-inline {
@@ -28,10 +30,10 @@
                 module = undefined;
             }
         </script>
-        <!-- <script src="no           /jquery/3.1.1/jquery.min.js"></script> -->
         <script src="node_modules/jquery/dist/jquery.min.js"></script>
         <link rel="stylesheet" href="jstree/dist/themes/default/style.min.css" />
         <script src="jstree/dist/jstree.min.js"></script>
+        <script src="tui-editor/toastui-editor-all.js"></script>
         <script>
             if (window.module) module = window.module;
         </script>
@@ -417,6 +419,16 @@
             </div>
             <!-- 详细内容显示：MD编辑器和查看器 -->
             <div>
+                <div id="area">
+                    <input type="button" value="保存" onclick="savechange();">
+                    <table>
+                        <tr>
+                            <td>
+                                <div id="editor"></div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
                 <link rel="stylesheet" href="md.css" />
                 <style>
                     #area>table {
@@ -450,8 +462,13 @@
                         display: table;
                     }
                 </style>
-                <script src="node_modules/showdown/dist/showdown.min.js"></script>
                 <script>
+                    const editor = new toastui.Editor({
+                        el: document.querySelector('#editor'),
+                        height: '600px',
+                        initialValue: "",
+                        initialEditType: 'wysiwyg'
+                    });
                     // 更新显示的MD数据
                     var shownid = 0
                     ipc.on("update shown", (event, msg) => {
@@ -466,10 +483,7 @@
                             }).then(result => {
                                 if (result.response == 1) {
                                     console.log("放弃修改")
-                                    var converter = new showdown.Converter();
-                                    var html = converter.makeHtml(data);
-                                    document.getElementById("md-area").value = data;
-                                    document.getElementById("show-area").innerHTML = html;
+                                    editor.setMarkdown(data)
                                     shownid = id
                                     edited = false;
                                 } else {
@@ -478,41 +492,21 @@
                                 }
                             })
                         } else {
-                            var converter = new showdown.Converter();
-                            var html = converter.makeHtml(data);
-                            document.getElementById("md-area").value = data;
-                            document.getElementById("show-area").innerHTML = html;
+                            editor.setMarkdown(data)
                             shownid = id
                         }
                     })
 
-                    function mdSwitch() {
-                        var mdValue = document.getElementById("md-area").value;
-                        var converter = new showdown.Converter();
-                        var html = converter.makeHtml(mdValue);
-                        document.getElementById("show-area").innerHTML = html;
-                        edited = true
-                    }
 
                     function savechange() {
-                        curcontent = document.getElementById("md-area").value;
+                        curcontent = editor.getMarkdown()
+                            // curcontent = document.getElementById("md-area").value;
                         ipc.send("dataupload", {
                             id: shownid,
                             data: curcontent
                         })
                     }
                 </script>
-                <div id="area">
-                    <input type="button" value="保存" onclick="savechange();">
-                    <table>
-                        <tr>
-                            <td><textarea name="" id="md-area" onkeyup=mdSwitch()></textarea></td>
-                            <td>
-                                <div id="show-area" class="clearfix"></div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
             </div>
         </div>
     </body>

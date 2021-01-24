@@ -16,8 +16,8 @@
     "dependencies": {
         "@grpc/grpc-js": "^1.2.2",
         "@grpc/proto-loader": "^0.5.5",
+        "@toast-ui/editor": "^2.5.1",
         "jquery": "^3.5.1",
-        "showdown": "^1.9.1",
-        "tui-editor": "^1.4.10"
+        "showdown": "^1.9.1"
     }
 }
