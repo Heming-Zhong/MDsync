@@ -125,7 +125,10 @@ ipcmain.on("upload", function(event, data) {
                             id = fileinfo.id
                             filenode.id = id
                             console.log(id)
-                            localnode.push(filenode)
+                            if (!exists(id)) {
+                                filenode.original.id = id
+                                localnode.push(filenode.original)
+                            }
                             if (postfix == 'md') {
                                 mdfileshowndata = filecontent.toString('utf8')
                                 curwin.webContents.send("update shown", mdfileshowndata)
@@ -140,14 +143,6 @@ ipcmain.on("upload", function(event, data) {
                 console.log("发送失败!")
             }
         }
-    }
-    filecontent = fs.readFileSync(localpath)
-    console.log("发送成功!")
-    localnode.push(filenode)
-    if (postfix == 'md') {
-        // 不要忘记转换编码
-        mdfileshowndata = filecontent.toString("utf8")
-        curwin.webContents.send("update shown", mdfileshowndata)
     }
     server_stub.newFileReq(request, uploadcallback)
 
@@ -173,7 +168,7 @@ ipcmain.on("download", (event, data) => {
             // postfix = arr[arr.length - 1]
         if (node.original.type == 'markdown') {
             mdfileshowndata = tempdata.toString("utf8")
-            console.log(mdfileshowndata)
+                // console.log(mdfileshowndata)
                 // curwin.webContents.send("update shown", mdfileshowndata)
             event.sender.send("update shown", mdfileshowndata)
         }
@@ -201,14 +196,17 @@ ipcmain.on("download", (event, data) => {
 
                     client.on("end", function() {
                         console.log("socket end")
-                        console.log("downloaded data:" + tempdata)
+                            // console.log("downloaded data:" + tempdata)
                         if (node.original.type == 'markdown') {
                             mdfileshowndata = tempdata.toString("utf8")
-                            console.log(tempdata)
+                                // console.log(tempdata)
                             curwin.webContents.send("update shown", mdfileshowndata)
                         }
                         console.log("下载成功!")
-                        localnode.push(node) // 本地只记录文件节点的信息，即叶节点
+                        if (!exists(node.id)) {
+                            node.original.id = node.id
+                            localnode.push(node.original) // 本地只记录文件节点的信息，即叶节点
+                        }
                     })
 
                     // arr = filename.split('.')
@@ -348,9 +346,9 @@ function getfiletree() {
 
             // 只更新树信息，在后面的函数中更新本地内容
             userfiletree = newfiletree
-            console.log(userfiletree)
+                // console.log(userfiletree)
                 // show new tree
-            console.log(info.json)
+                // console.log(info.json)
             if (curwin == testwin) {
                 console.log("unchanged")
             } else {
@@ -367,7 +365,9 @@ function getfiletree() {
 function updatefiles() {
     // update nodes need to update
 
-
+    console.log("updating..")
+    console.log(localnode)
+    console.log(userfiletree)
     for (i = 0; i < localnode.length; i++) {
         find_flag = false
 
@@ -377,11 +377,15 @@ function updatefiles() {
             if (localnode[i].id == userfiletree[j].id) {
                 find_flag = true
                     // compare timestamp   
+                console.log(localnode[i])
+                console.log(userfiletree[j])
                 if (localnode[i].timestamp < userfiletree[j].timestamp) {
                     checkdir(localdata + userfiletree[j].path)
-                    oldfilepath = localdata + localnode[i].path + localnode[i].text
-                    newfilepath = localdata + userfiletree[j].path + userfiletree[j].text
-                    request = { uuid: userid, op: "downloadReq", address: newfilepath }
+                    oldfilepath = localdata + localnode[i].path
+                    newfilepath = localdata + userfiletree[j].path
+                    request = { uuid: userid, op: "downloadReq", address: userfiletree[j].path }
+                    console.log("old" + oldfilepath)
+                    console.log("new" + newfilepath)
 
                     function downloadcallback(error, socketinfo) {
                         if (error) {
@@ -412,8 +416,9 @@ function updatefiles() {
         }
         // not find in new file tree, indicating this local copy need to be delete
         if (find_flag == false) {
+            fs.unlinkSync(localdata + localnode[i].path)
             localnode.splice(i, 1)
-            fs.unlinkSync(localdata + localnode[i].path + '/' + localnode[i].text)
+            i--
         }
     }
     console.log("local copies all updated")
@@ -477,4 +482,13 @@ function existslocal(node) {
         }
     }
     return existflag
+}
+
+function exists(id) {
+    for (i in localnode) {
+        if (localnode[i].id == id) {
+            return true
+        }
+    }
+    return false
 }
