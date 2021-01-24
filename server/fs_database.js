@@ -94,7 +94,6 @@ function changeTimeStamp(username,id,timeStamp)
     while (true)
     {
         update.run(timeStamp,tmpID);
-        console.log('id='+tmpID+'update to '+timeStamp);
         var tmp=db.prepare("select parent from file where id=?").all(tmpID);
         if (tmp.length==0) return;
         tmpID=tmp[0].parent;
