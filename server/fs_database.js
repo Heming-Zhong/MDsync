@@ -94,7 +94,7 @@ function changeTimeStamp(username,id,timeStamp)
     while (true)
     {
         update.run(timeStamp,tmpID);
-        var tmp=db.prepare("select parent from file where id=?").all(id);
+        var tmp=db.prepare("select parent from file where id=?").all(tmpID);
         if (tmp.length==0) return;
         tmpID=tmp[0].id;
     }
