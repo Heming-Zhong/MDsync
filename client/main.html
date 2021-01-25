@@ -59,6 +59,14 @@
                         data[i].icon = "./icons/file.png"
                     }
                 }
+                ref = $('#jstree1').jstree(true)
+                    // ref.destroy(true)
+
+                console.log(ref)
+                if (ref != false) {
+                    ref.settings.core.data = data
+                    ref.refresh()
+                }
                 $('#jstree1').jstree({
                     "core": {
                         data: data,
@@ -150,6 +158,7 @@
                         node.original.path = destpath
                     }
                 });
+
             })
 
             // NOTE upload

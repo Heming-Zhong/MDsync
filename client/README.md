@@ -41,4 +41,14 @@ electron main.js
 npm start
 ```
 
+## 效果
 
+客户端正常运行效果如下：
+
+- 登录框：
+
+<img src="https://gitee.com/zhong_he_ming/image/raw/master/images/login.png" alt="login" style="zoom:50%;" /> 
+
+- 登录后的主页面，包括文件树、Markdown编辑和渲染框：
+
+![main page]()

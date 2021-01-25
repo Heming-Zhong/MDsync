@@ -549,3 +549,12 @@ function exists(id) {
     }
     return false
 }
+
+function findlocalid(id) {
+    for (i in localnode) {
+        if (localnode[i].id == id) {
+            return i
+        }
+    }
+    return -1
+}
