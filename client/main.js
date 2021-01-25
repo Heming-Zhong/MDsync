@@ -31,7 +31,7 @@ function createWindow() {
     mainWindowID = win.id
         // var contents = win.webContents
         // 打开调试界面，以后需要删去
-    win.webContents.openDevTools()
+        // win.webContents.openDevTools()
 }
 
 app.whenReady().then(createWindow)
@@ -411,7 +411,7 @@ function getfiletree() {
             } else {
                 console.log("changed")
             }
-            curwin.webContents.send("test", info.json)
+            // curwin.webContents.send("test", info.json)
             curwin.webContents.send("filetree", info.json)
         }
     })
