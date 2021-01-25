@@ -14,11 +14,11 @@
             const rpc = require('./rpc')
             const ipc = require('electron').ipcRenderer
         </script>
-        <h1 class="inputfield">登录</h1>
+        <h1 class="title">登录</h1>
         <form class="input">
             <div class="inputfield">服务端:</div>
-            <input type="text" class="inputfield" id="ip" pattern="(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$" value="127.0.0.1" />
-            <input type="text" class="inputfield" id="port" pattern="^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$" value="5666" />
+            <input type="text" class="inputfield" id="ip" pattern="(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$" placeholder="Server IP" />
+            <input type="text" class="inputfield" id="port" pattern="^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$" placeholder="Server port" />
         </form>
         <script>
             function teststub() {
@@ -31,8 +31,8 @@
         </script>
         <form class="input">
             <div class="inputfield">用户:</div>
-            <input type="text" class="inputfield" id="user" value="zhm" />
-            <input type="password" class="inputfield" id="passwd" value="1234" />
+            <input type="text" class="inputfield" id="user" placeholder="User name" />
+            <input type="password" class="inputfield" id="passwd" placeholder="Password" />
         </form>
         <button class="inputfield btn" id="submitacount" onclick="handle()" onkeydown="javascript:if(event.keyCode==13) handle()">
             登录

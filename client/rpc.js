@@ -8,11 +8,6 @@ var trigger = function(ip, port) {
     return client
 }
 
-var unique_id = "";
-var cur_login_status = false;
 
-// trigger("127.0.0.1", "2020")
 
 exports.getstub = trigger
-exports.uid = unique_id;
-exports.status = cur_login_status;

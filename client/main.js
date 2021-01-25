@@ -19,8 +19,8 @@ var serverip = "" // 服务器IP地址
 // NOTE 创建主窗口
 function createWindow() {
     const win = new BrowserWindow({
-        width: 300,
-        height: 300,
+        width: 400,
+        height: 460,
         webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true
@@ -31,7 +31,7 @@ function createWindow() {
     mainWindowID = win.id
         // var contents = win.webContents
         // 打开调试界面，以后需要删去
-    win.webContents.openDevTools()
+        // win.webContents.openDevTools()
 }
 
 app.whenReady().then(createWindow)
@@ -411,7 +411,7 @@ function getfiletree() {
             } else {
                 console.log("changed")
             }
-            curwin.webContents.send("test", info.json)
+            // curwin.webContents.send("test", info.json)
             curwin.webContents.send("filetree", info.json)
         }
     })
@@ -548,4 +548,13 @@ function exists(id) {
         }
     }
     return false
+}
+
+function findlocalid(id) {
+    for (i in localnode) {
+        if (localnode[i].id == id) {
+            return i
+        }
+    }
+    return -1
 }

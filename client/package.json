@@ -1,15 +1,23 @@
 {
     "name": "client",
-    "version": "1.0.0",
-    "description": "",
+    "version": "0.0.1",
+    "description": "MDSync's electron client",
     "main": "main.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "electron ."
+        "start": "electron main.js"
     },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Heming-Zhong/MDsync.git"
+    },
+    "author": "Heming-Zhong",
+    "license": "UNLICENSED",
+    "bugs": {
+        "url": "https://github.com/Heming-Zhong/MDsync/issues"
+    },
+    "homepage": "https://github.com/Heming-Zhong/MDsync#readme",
     "keywords": [],
-    "author": "",
-    "license": "ISC",
     "devDependencies": {
         "electron": "^11.0.2"
     },
