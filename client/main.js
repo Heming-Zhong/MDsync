@@ -411,7 +411,7 @@ function getfiletree() {
             } else {
                 console.log("changed")
             }
-            updatelocaltree()
+            updatefiles()
                 // curwin.webContents.send("test", info.json)
             curwin.webContents.send("filetree", info.json)
         }

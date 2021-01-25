@@ -60,9 +60,6 @@
                     }
                 }
                 ref = $('#jstree1').jstree(true)
-                    // ref.destroy(true)
-
-                console.log(ref)
                 if (ref != false) {
                     ref.settings.core.data = data
                     ref.refresh()
@@ -144,8 +141,13 @@
                     parent = ref.get_node(parentid)
                     node = data.node // 注意这个是节点对象
                     oldpath = node.original.path // 旧的目录位置
-                    destpath = parent.original.path + '/' + node.text
-                        // destpath = totalpath.substr(0, totalpath.length - node.text.length) // 新的目录位置
+                    var destpath
+                    if (parent.original.path == '/') {
+                        destpath = '/' + node.text
+                    } else {
+                        destpath = parent.original.path + '/' + node.text
+                    }
+                    // destpath = totalpath.substr(0, totalpath.length - node.text.length) // 新的目录位置
                     console.log("destpath:" + destpath)
                     console.log("oldpath:" + oldpath)
                     status = ipc.sendSync('move', {
@@ -220,7 +222,6 @@
                                     filename: filename,
                                     treenode: newNode
                                 })
-                                alert(newid)
                                 ref.set_id(newNode, newid)
                                     // newNode.id = newid
                             } else {
@@ -498,9 +499,13 @@
                         } else {
                             editor.setMarkdown(data)
                             shownid = id
+                            edited = false
                         }
                     })
 
+                    editor.on('change', function() {
+                        edited = true
+                    })
 
                     function savechange() {
                         curcontent = editor.getMarkdown()
