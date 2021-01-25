@@ -143,7 +143,7 @@ var moveNode=function(username,oldPath,type,newPath,timeStamp)
     var db=probeDB(username);
     var newArr=splitAddr(newPath);
     
-    var id=db.prepare("select id from file where path=? and type=?").all(oldPath,type);
+    var id=db.prepare("select id from file where path=?").all(oldPath);
     if (id.length==0) return wrongPath;
     id=id[0].id;
     var parent=db.prepare("select id from file where path=? and type='directory'").all(newArr.dirname);
@@ -154,7 +154,8 @@ var moveNode=function(username,oldPath,type,newPath,timeStamp)
             newPath,
             parent,
             id);
-    changeTimeStamp(username,id,timeStamp)
+    changeTimeStamp(username,id,timeStamp);
+    console.log('move node done');
     return;
 }
 

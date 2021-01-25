@@ -288,6 +288,7 @@ var fileOperation=function(call,callback)
         newPath+=req.extra;
         fs.renameSync(filePath,__dirname+'/runtime/files/'+user+newPath);
         //3. DB op
+        logSys.writeLog('grpc','notify','start moveNode');
         fsDB.moveNode(user,req.address,"directory",newPath,getServerTime());
         moveServerTime();
         break;
@@ -442,6 +443,7 @@ var getFileTree=function(call,callback)
         return;
     }
     var user=userMap.get(req.uuid).username;
+    logSys.writeLog('grpc','notify',`${user} get tree`);
     ret.json=fsDB.genTree(user);
     callback(null,ret);
 }
