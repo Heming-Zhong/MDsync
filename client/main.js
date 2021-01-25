@@ -411,7 +411,8 @@ function getfiletree() {
             } else {
                 console.log("changed")
             }
-            // curwin.webContents.send("test", info.json)
+            updatelocaltree()
+                // curwin.webContents.send("test", info.json)
             curwin.webContents.send("filetree", info.json)
         }
     })
@@ -497,7 +498,7 @@ function checkupdate() {
                 console.log("out of date... updating")
                 console.log(localvectime)
                 getfiletree() // update local tree
-                updatefiles()
+                    // updatefiles()
                 localvectime = time
             } else {
                 console.log("up to date")
