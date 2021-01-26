@@ -236,9 +236,11 @@ service serviceMDSync
 
 ​	6. 移动项目：移动功能基于JsTree的节点拖拽插件dnd来实现。在拖拽操作完成后的事件中触发，并将相应信息发送给主进程，然后主进程调用rpc让服务器也执行对应操作。
 
+​	上面这些就是客户端实现的所有文件操作了，可以看到这些操作有一个共同点，那就是它们都是先在渲染进程完成部分处理，然后再与主进程通信，然后由主进程完成接下来的处理，有些在主进程处理完之后还需要返还给渲染进程结果。
+
 #### 3.3.4 文档编辑设计
 
-
+​	我们还提供了对文档进行编辑的功能，我们使用了开源编辑器项目：https://github.com/nhn/tui.editor作为我们的markdown编辑器。对于已经下载的markdown文件(点击时)，我们可以将其文件内容显示在这个编辑器中，然后可以在这里对其内容进行编辑，如果这个内容已经被编辑过，那么就将其标记，然后如果这个时候用户点击其他文件，那么就弹出一个弹窗，然后询问用户是否放弃修改，如果不放弃，就继续修改，如果放弃，就转而显示其他文件内容。对于修改的文件内容，我们提供了一个保存按钮，能够将修改的内容通过对应的rpc发送给服务端，让服务端应用相应的修改。
 
 ## 4. 系统环境（软硬件环境）
 
@@ -263,6 +265,34 @@ service serviceMDSync
 > 提纲：
 >
 > 1. 按照grpc的请求来写？
+
+我们整个系统基本上可以说是基于grpc来构建的。作为服务端和客户端交互的核心，grpc负担了绝大多数客户端对服务端的操作请求，其中包括的rpc如下：
+
+```protobuf
+service serviceMDSync
+{
+    rpc login(loginInfo) returns (response);
+    rpc getFileInfo(request) returns (fileInfo);
+    rpc fileOperation(request) returns (response);
+    rpc uploadReq(request) returns (socketInfo);
+    rpc downloadReq(request) returns (socketInfo);
+    rpc newFileReq(request) returns (socketInfo);
+    rpc getFileTree(request) returns (JSONString);
+    rpc getTimeStamp(request) returns (JSONString);
+};
+```
+
+其中每个rpc的功能如下：
+
+- login：登录功能，将用户信息发送给服务端来执行登录请求；
+- fileOperation：文件操作功能，让客户端能够执行对应操作来对服务端上的文件进行相应管理；
+- uploadReq：上传请求，用于更新已存在于服务端上的文件的内容
+- downloadReq：下载请求，用于让客户端获取服务端上的文件的内容
+- newFileReq：新文件请求，用于让客户端上传某个在服务端上不存在的文件；
+- getFileTree：获取文件树信息，用于让客户端获取服务端上最新的文件树信息
+- getTimeStamp：时间戳，用于让客户端来获得服务器当前的时间戳，并以此决定是否要更新本地内容。
+
+可以看到，这些通信及它们的功能共同组成了整个基于服务端-客户端交互的MDSync系统
 
 ## 6. 总结
 
